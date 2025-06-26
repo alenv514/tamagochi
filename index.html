@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tamagotchi Virtual - Patrón State</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="tamagotchi-container">
+    <div class="screen">
+      <div id="notifications" class="notifications"></div>
+
+      <!-- Overlay si muere -->
+      <div id="death-overlay" class="death-overlay" style="display: none;">
+        <div class="death-message">
+          💀 Tu mascota ha muerto 💀<br />
+          <small>No la cuidaste bien...</small>
+        </div>
+        <button class="restart-btn" onclick="restartGame()">Empezar de nuevo</button>
+      </div>
+
+      <!-- BLOQUE CENTRAL: estadísticas izquierda - mascota - estadísticas derecha -->
+      <div class="tamagotchi-core">
+        <div class="stats-side left-stats">
+          <div class="stat">
+            <span class="stat-label">Felicidad</span>
+            <span id="happiness-value" class="stat-value">100</span>
+            <div class="stat-bar">
+              <div id="happiness-bar" class="stat-fill happiness-fill" style="width: 100%"></div>
+            </div>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Energía</span>
+            <span id="energy-value" class="stat-value">100</span>
+            <div class="stat-bar">
+              <div id="energy-bar" class="stat-fill energy-fill" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pet-container">
+            <img id="pet-gif" class="pet-gif" src="" alt="Tu mascota virtual" />
+            <div id="pet-name" class="pet-name">Mascottita</div>
+            <div id="state-indicator" class="state-indicator">Estado: contenta</div>
+            <div id="advice-box" class="advice-box">Los consejos aparecerán aquí...</div>
+          </div>
+          
+
+        <div class="stats-side right-stats">
+          <div class="stat">
+            <span class="stat-label">Hambre</span>
+            <span id="hunger-value" class="stat-value">100</span>
+            <div class="stat-bar">
+              <div id="hunger-bar" class="stat-fill hunger-fill" style="width: 100%"></div>
+            </div>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Higiene</span>
+            <span id="hygiene-value" class="stat-value">100</span>
+            <div class="stat-bar">
+              <div id="hygiene-bar" class="stat-fill hygiene-fill" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mensajes -->
+      <div id="status-message" class="status-message">¡Tu mascota está esperando!</div>
+      <div id="advice-box" class="advice-box">Los consejos aparecerán aquí...</div>
+
+      <!-- Edad -->
+      <div class="age-container">
+        <div id="age" class="age">Edad: 0 horas</div>
+      </div>
+    </div>
+
+    <!-- Botones divididos en dos columnas -->
+    <div class="controls">
+      <div class="button-column">
+        <button class="btn btn-feed" onclick="performAction('comer')">🍎<br><small>Comer</small></button>
+        <button class="btn btn-play" onclick="performAction('jugar')">🎾<br><small>Jugar</small></button>
+      </div>
+      <div class="button-column">
+        <button class="btn btn-sleep" onclick="performAction('dormir')">💤<br><small>Dormir</small></button>
+        <button class="btn btn-clean" onclick="performAction('asearse')">🧼<br><small>Limpiar</small></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
