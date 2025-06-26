@@ -1,7 +1,11 @@
+/* Cambiar la fuente del documento a Lato */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Lato', sans-serif; /* Aplicar la fuente Lato */
   }
   
   body {
@@ -17,7 +21,7 @@
   .tamagotchi-container {
     background: #2a2a2a;
     border-radius: 50px;
-    padding: 30px;
+    padding: 40px; /* Incrementar padding para evitar superposición */
     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
     max-width: 450px;
     width: 100%;
@@ -46,15 +50,37 @@
     width: 100%;
     margin-bottom: 10px;
   }
+    
+  /* Estilo para los paneles de estado y edad */
+.stat {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 10px; /* Separar los paneles */
+}
+
+.stat-label {
+    color: #ccc;
+    font-size: 12px;
+    display: block;
+}
+
+.stat-value {
+    color: #ffd700; /* Color dorado para estado y edad */
+    font-size: 16px;
+    font-weight: bold;
+}
   
   .stats-side {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 10px; /* Espaciado entre paneles */
+    margin-top: 10px;
   }
   
   .left-stats, .right-stats {
-    width: 100px;
+    width: 120px; /* Ajustar ancho para acomodar los nuevos paneles */
   }
   
   .pet-container {
@@ -63,7 +89,10 @@
     align-items: center;
     justify-content: center;
     width: 180px;
-    height: 180px;
+    height: 220px; /* Incrementar altura para evitar superposición */
+    position: relative;
+    padding-top: 60px; /* Espacio extra para el globo */
+    margin-top: 20px; /* Margen superior adicional */
   }
   
   .pet-gif {
@@ -81,14 +110,17 @@
     text-shadow: 0 0 10px #00ff00;
   }
   
+  
   .state-indicator {
     background: rgba(255, 215, 0, 0.2);
     color: #ffd700;
     padding: 5px 15px;
     border-radius: 15px;
-    font-size: 12px;
-    margin: 5px 0;
+    font-size: 14px; /* Incrementar tamaño de fuente */
+    margin: 10px 0; /* Añadir margen para separar del resto */
     border: 1px solid #ffd700;
+    position: relative;
+    z-index: 10; /* Asegurar que esté encima de otros elementos */
   }
   
   .stat {
@@ -111,18 +143,7 @@
   }
   
   .stat-bar {
-    width: 100%;
-    height: 6px;
-    background: #333;
-    border-radius: 3px;
-    margin-top: 5px;
-    overflow: hidden;
-  }
-  
-  .stat-fill {
-    height: 100%;
-    border-radius: 3px;
-    transition: width 0.3s ease;
+    display: none;
   }
   
   .happiness-fill { background: #ff6b6b; }
@@ -140,6 +161,39 @@
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  
+  .status-message-bubble {
+    position: absolute;
+    top: -80px; /* Más espacio arriba */
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%);
+    color: #333;
+    border-radius: 25px;
+    padding: 15px 20px; /* Más padding */
+    font-size: 12px; /* Texto más pequeño para que quepa */
+    font-weight: 500;
+    text-align: center;
+    min-width: 160px; /* Ancho mínimo mayor */
+    max-width: 250px; /* Ancho máximo mayor */
+    min-height: 40px; /* Altura mínima */
+    white-space: normal; /* Permitir salto de línea */
+    word-wrap: break-word; /* Romper palabras largas */
+    overflow-wrap: break-word; /* Mejor manejo de palabras largas */
+    line-height: 1.4; /* Mejor espaciado entre líneas */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        0 8px 25px rgba(0,0,0,0.15),
+        0 4px 10px rgba(0,0,0,0.1),
+        inset 0 1px 0 rgba(255,255,255,0.8);
+    border: 1px solid rgba(255,215,0,0.3);
+    z-index: 50;
+    opacity: 0;
+    position: relative;
+    overflow: hidden; /* Importante para contener el overlay */
   }
   
   .advice-box {
@@ -172,12 +226,11 @@
     border-top-color: #ffffff;
   }
   
-  
   .controls {
     display: flex;
     justify-content: center;
     gap: 40px;
-    margin-top: 10px;
+    margin-top: 20px; /* Separar más del contenedor de estadísticas */
   }
   
   .button-column {
@@ -224,12 +277,15 @@
   
   .age-container {
     text-align: center;
-    margin-top: 10px;
+    margin-top: 40px; /* Separar más del estado */
   }
   
   .age {
     color: #ffd700;
-    font-size: 12px;
+    font-size: 14px; /* Incrementar tamaño de fuente */
+    font-weight: bold;
+    position: relative;
+    z-index: 10; /* Asegurar que esté encima de otros elementos */
   }
   
   .notifications {
@@ -280,3 +336,41 @@
     cursor: pointer;
   }
   
+  /* Contenedor de estadísticas */
+.stats-container {
+    display: flex;
+    justify-content: space-between; /* Posicionar los paneles a los lados */
+    align-items: center;
+    width: 100%; /* Asegurar que ocupe todo el ancho */
+    margin-top: 20px; /* Separar del resto del contenido */
+}
+
+/* Panel de edad */
+.age-panel {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 120px; /* Ajustar ancho */
+}
+
+.age-panel .stat-value {
+    color: #ffd700; /* Color dorado */
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Panel de estado */
+.state-panel {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 120px; /* Ajustar ancho */
+}
+
+.state-panel .stat-value {
+    color: #ffd700; /* Color dorado */
+    font-size: 16px;
+    font-weight: bold;
+}

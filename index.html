@@ -15,9 +15,36 @@
       <div id="death-overlay" class="death-overlay" style="display: none;">
         <div class="death-message">
           💀 Tu mascota ha muerto 💀<br />
-          <small>No la cuidaste bien...</small>
+          <small id="death-reason">No la cuidaste bien...</small>
         </div>
-        <button class="restart-btn" onclick="restartGame()">Empezar de nuevo</button>
+        <div class="death-actions">
+          <button class="restart-btn" onclick="showNameModal()">Empezar de nuevo</button>
+          <button class="history-btn" onclick="showDeathHistory()">Ver Historial</button>
+        </div>
+      </div>
+
+      <!-- Modal para cambiar nombre -->
+      <div id="name-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <h3>Nueva Mascota</h3>
+          <p>¿Cómo quieres llamar a tu nueva mascota?</p>
+          <input type="text" id="new-pet-name" placeholder="Nombre de la mascota" maxlength="15">
+          <div class="modal-actions">
+            <button class="modal-btn confirm-btn" onclick="confirmNewPet()">Confirmar</button>
+            <button class="modal-btn cancel-btn" onclick="hideNameModal()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal para historial de muertes -->
+      <div id="history-modal" class="modal" style="display: none;">
+        <div class="modal-content history-content">
+          <h3>💀 Cementerio de Mascotas</h3>
+          <div id="death-history-list" class="history-list">
+            <!-- Se llena dinámicamente -->
+          </div>
+          <button class="modal-btn close-btn" onclick="hideHistoryModal()">Cerrar</button>
+        </div>
       </div>
 
       <!-- BLOQUE CENTRAL: estadísticas izquierda - mascota - estadísticas derecha -->
@@ -40,12 +67,13 @@
         </div>
 
         <div class="pet-container">
-            <img id="pet-gif" class="pet-gif" src="" alt="Tu mascota virtual" />
-            <div id="pet-name" class="pet-name">Mascottita</div>
-            <div id="state-indicator" class="state-indicator">Estado: contenta</div>
-            <div id="advice-box" class="advice-box">Los consejos aparecerán aquí...</div>
-          </div>
+          <div id="status-message" class="status-message-bubble">¡Tu mascota está esperando!</div>
+          <img id="pet-gif" class="pet-gif" src="" alt="Tu mascota virtual" />
+          <div id="pet-name" class="pet-name">Mascottita</div>
           
+          <div id="advice-box" class="advice-box">Los consejos aparecerán aquí...</div>
+        </div>
+        
 
         <div class="stats-side right-stats">
           <div class="stat">
@@ -65,13 +93,17 @@
         </div>
       </div>
 
-      <!-- Mensajes -->
-      <div id="status-message" class="status-message">¡Tu mascota está esperando!</div>
-      <div id="advice-box" class="advice-box">Los consejos aparecerán aquí...</div>
-
-      <!-- Edad -->
-      <div class="age-container">
-        <div id="age" class="age">Edad: 0 horas</div>
+   
+      <!-- Estadísticas combinadas (edad y estado) -->
+      <div class="stats-container">
+        <!-- Panel de edad -->
+        <div class="stat age-panel">
+          <span id="age" class="stat-value">0 horas</span>
+        </div>
+        <!-- Panel de estado -->
+        <div class="stat state-panel">
+          <span id="state-indicator" class="stat-value">Contenta</span>
+        </div>
       </div>
     </div>
 
@@ -91,3 +123,280 @@
   <script src="script.js"></script>
 </body>
 </html>
+
+<style>
+.status-message-bubble {
+  position: absolute;
+  top: -80px; /* Más espacio arriba */
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%);
+  color: #333;
+  border-radius: 25px;
+  padding: 15px 20px; /* Más padding */
+  font-size: 12px; /* Texto más pequeño para que quepa */
+  font-weight: 500;
+  text-align: center;
+  min-width: 160px; /* Ancho mínimo mayor */
+  max-width: 250px; /* Ancho máximo mayor */
+  min-height: 40px; /* Altura mínima */
+  white-space: normal; /* Permitir salto de línea */
+  word-wrap: break-word; /* Romper palabras largas */
+  overflow-wrap: break-word; /* Mejor manejo de palabras largas */
+  line-height: 1.4; /* Mejor espaciado entre líneas */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 8px 25px rgba(0,0,0,0.15),
+    0 4px 10px rgba(0,0,0,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.8);
+  border: 1px solid rgba(255,215,0,0.3);
+  z-index: 50;
+  opacity: 0;
+  position: relative;
+  overflow: hidden; /* Importante para contener el overlay */
+}
+
+/* Overlay de nube */
+.status-message-bubble::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.4) 20%, transparent 21%),
+    radial-gradient(circle at 60% 30%, rgba(255,255,255,0.3) 15%, transparent 16%),
+    radial-gradient(circle at 80% 60%, rgba(255,255,255,0.35) 18%, transparent 19%),
+    radial-gradient(circle at 30% 80%, rgba(255,255,255,0.25) 22%, transparent 23%),
+    radial-gradient(circle at 90% 10%, rgba(255,255,255,0.2) 12%, transparent 13%);
+  border-radius: 30px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Cola del globo con efecto más suave */
+.status-message-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  margin-left: -10px;
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+  border-top: 12px solid #f8f9fa;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+  z-index: 1;
+}
+
+/* Animación mejorada con efecto nube */
+@keyframes fadeInBounce {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-15px) scale(0.7);
+    filter: blur(2px);
+  }
+  40% {
+    opacity: 0.8;
+    transform: translateX(-50%) translateY(-2px) scale(1.05);
+    filter: blur(0.5px);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(2px) scale(0.98);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+/* Efecto flotante sutil */
+@keyframes cloudFloat {
+  0%, 100% { transform: translateX(-50%) translateY(0px); }
+  50% { transform: translateX(-50%) translateY(-2px); }
+}
+
+.status-message-bubble {
+  animation: fadeInBounce 0.6s ease forwards, cloudFloat 3s ease-in-out infinite 0.6s;
+}
+
+/* Ajustar el contenedor de la mascota para dar más espacio */
+.pet-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 180px;
+  height: 180px;
+  position: relative;
+  padding-top: 60px; /* Espacio extra para el globo */
+  margin-top: 20px; /* Margen superior adicional */
+}
+
+.death-actions {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.history-btn {
+  background: #6c5ce7;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.history-btn:hover {
+  background: #5a4fcf;
+  transform: translateY(-2px);
+}
+
+/* Estilos para modales */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #2a2a2a;
+  color: white;
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  min-width: 300px;
+  max-width: 90vw;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  border: 2px solid #4a4a4a;
+}
+
+.modal-content h3 {
+  color: #ffd700;
+  margin-bottom: 15px;
+  font-size: 20px;
+}
+
+.modal-content p {
+  margin-bottom: 20px;
+  color: #ccc;
+}
+
+#new-pet-name {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  text-align: center;
+  background: #1e3a1e;
+  color: white;
+  border: 2px solid #4a4a4a;
+}
+
+#new-pet-name:focus {
+  outline: none;
+  border-color: #ffd700;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.modal-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirm-btn {
+  background: #00b894;
+  color: white;
+}
+
+.confirm-btn:hover {
+  background: #00a085;
+}
+
+.cancel-btn, .close-btn {
+  background: #636e72;
+  color: white;
+}
+
+.cancel-btn:hover, .close-btn:hover {
+  background: #555;
+}
+
+/* Historial de muertes */
+.history-content {
+  max-width: 500px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.history-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.death-entry {
+  background: rgba(0,0,0,0.3);
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border-left: 4px solid #ff6b6b;
+}
+
+.death-entry-header {
+  color: #ff6b6b;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.death-entry-info {
+  color: #ccc;
+  font-size: 12px;
+  margin: 3px 0;
+}
+
+.death-entry-reason {
+  color: #ffd700;
+  font-style: italic;
+  margin-top: 8px;
+}
+
+.no-deaths {
+  color: #00ff00;
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+}
+</style>

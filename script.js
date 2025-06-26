@@ -50,6 +50,24 @@ const PetData = {
   }
 };
 
+const DeathTracker = {
+  getHistory: () => JSON.parse(localStorage.getItem('pet-death-history') || '[]'),
+  addDeath: (petData) => {
+    const history = DeathTracker.getHistory();
+    const deathEntry = {
+      name: petData.name,
+      age: petData.age,
+      reason: petData.deathReason,
+      date: new Date().toLocaleString('es-ES'),
+      finalStats: { ...petData.stats }
+    };
+    history.unshift(deathEntry); // Agregar al inicio
+    if (history.length > 20) history.pop(); // Mantener solo 20 registros
+    localStorage.setItem('pet-death-history', JSON.stringify(history));
+  },
+  clearHistory: () => localStorage.removeItem('pet-death-history')
+};
+
   // =========================
   // ESTADOS DE LA MASCOTA
   // =========================
@@ -113,6 +131,12 @@ const PetData = {
     getGif() { return PetData.gifs.muerta; }
     getMessage(n) { return `${n} ha muerto... 💀`; }
     getAdvice() { return PetData.consejos.muerta; }
+    getDeathReason(stats) {
+      if (stats.happiness <= 0) return "Murió de tristeza y abandono 😢";
+      if (stats.hunger <= 0) return "Murió de hambre por desnutrición 🍽️";
+      if (stats.energy <= 0) return "Murió de agotamiento extremo 😴";
+      return "Causa de muerte desconocida";
+    }
     onComer(s) { return s; }
     onJugar(s) { return s; }
     onDormir(s) { return s; }
@@ -192,15 +216,33 @@ const PetData = {
   }
   
   function updateDisplay() {
-    petContext.updateState(gameState.stats);
+    const stateChanged = petContext.updateState(gameState.stats);
     const info = petContext.getCurrentInfo(gameState.name);
-  
+
+    // Si la mascota acaba de morir, registrar la muerte
+    if (stateChanged && info.isDead) {
+      const deathReason = petContext.currentState.getDeathReason(gameState.stats);
+      gameState.deathReason = deathReason;
+      document.getElementById('death-reason').textContent = deathReason;
+      DeathTracker.addDeath(gameState);
+    }
+
     document.getElementById('pet-gif').src = info.gif;
     document.getElementById('pet-name').textContent = gameState.name;
     document.getElementById('state-indicator').textContent = `Estado: ${info.stateName}`;
-    document.getElementById('status-message').textContent = info.message;
+    
+    // Efecto de nube mejorado para el mensaje
+    const statusElement = document.getElementById('status-message');
+    statusElement.style.animation = 'none';
+    statusElement.style.opacity = '0';
+    statusElement.textContent = info.message;
+    
+    setTimeout(() => {
+      statusElement.style.animation = 'fadeInBounce 0.6s ease forwards, cloudFloat 3s ease-in-out infinite 0.6s';
+    }, 50);
+
     document.getElementById('advice-box').textContent = info.advice;
-  
+
     Object.keys(gameState.stats).forEach(stat => {
       const value = Math.round(gameState.stats[stat]);
       document.getElementById(`${stat}-value`).textContent = value;
@@ -246,10 +288,31 @@ const PetData = {
     gameState = {
       stats: { happiness: 100, hunger: 100, energy: 100, hygiene: 100 },
       age: 0,
-      name: gameState.name,
+      name: gameState.name, // Mantener el nombre actual
       lastUpdate: Date.now()
     };
     updateDisplay();
+  }
+
+  function showNameModal() {
+    document.getElementById('name-modal').style.display = 'flex';
+    document.getElementById('new-pet-name').value = '';
+    document.getElementById('new-pet-name').focus();
+  }
+
+  function hideNameModal() {
+    document.getElementById('name-modal').style.display = 'none';
+  }
+
+  function confirmNewPet() {
+    const newName = document.getElementById('new-pet-name').value.trim();
+    if (newName && newName.length > 0) {
+      gameState.name = newName;
+      restartGame();
+      hideNameModal();
+    } else {
+      alert('Por favor, ingresa un nombre válido para tu mascota.');
+    }
   }
   
   function automaticDegrade() {
@@ -275,13 +338,50 @@ const PetData = {
   
   function initGame() {
     if (!localStorage.getItem("tamagotchi-state-save")) {
-      const name = prompt("¿Cómo quieres llamar a tu mascota?", "Jose");
+      const name = prompt("¿Cómo quieres llamar a tu mascota?", "Mascottita");
       if (name) gameState.name = name;
     }
     loadGame();
     setInterval(automaticDegrade, 60000);
     setInterval(autoAdvice, 45000);
     setInterval(autoMensajeEmocional, 5000);
+    
+    // Event listener para Enter en el modal de nombre
+    document.getElementById('new-pet-name').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        confirmNewPet();
+      }
+    });
+  }
+  
+  function showDeathHistory() {
+    const history = DeathTracker.getHistory();
+    const historyList = document.getElementById('death-history-list');
+    
+    if (history.length === 0) {
+      historyList.innerHTML = '<div class="no-deaths">¡No hay mascotas muertas aún! 🎉</div>';
+    } else {
+      historyList.innerHTML = history.map(entry => `
+        <div class="death-entry">
+          <div class="death-entry-header">💀 ${entry.name}</div>
+          <div class="death-entry-info">Vivió: ${Utils.formatTime(entry.age)}</div>
+          <div class="death-entry-info">Fecha: ${entry.date}</div>
+          <div class="death-entry-info">Stats finales: 
+            ❤️${entry.finalStats.happiness} 
+            🍽️${entry.finalStats.hunger} 
+            ⚡${entry.finalStats.energy} 
+            🧼${entry.finalStats.hygiene}
+          </div>
+          <div class="death-entry-reason">${entry.reason}</div>
+        </div>
+      `).join('');
+    }
+    
+    document.getElementById('history-modal').style.display = 'flex';
+  }
+  
+  function hideHistoryModal() {
+    document.getElementById('history-modal').style.display = 'none';
   }
   
   window.addEventListener("load", initGame);
