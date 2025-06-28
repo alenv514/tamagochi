@@ -343,6 +343,7 @@
     align-items: center;
     width: 100%; /* Asegurar que ocupe todo el ancho */
     margin-top: 20px; /* Separar del resto del contenido */
+    margin-bottom: 100px;
 }
 
 /* Panel de edad */
@@ -373,4 +374,40 @@
     color: #ffd700; /* Color dorado */
     font-size: 16px;
     font-weight: bold;
+}
+.consejos-container {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 90;
+  
+  background: rgba(255,255,255,0.95);
+  border-radius: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-width: 220px;
+  font-size: 12px;
+  color: #333;
+  
+  /* ¡ya no ocultamos la caja! */
+  opacity: 1;
+  pointer-events: auto;
+}
+.consejos-container h4 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: #555;
+}
+.consejos-container ul {
+  margin: 0;
+  padding-left: 16px;
+  list-style: disc inside;
+}
+.consejos-container li {
+  margin-bottom: 4px;
+  
+  /* Para animar aparición/desaparición si quieres */
+  transition: opacity 0.3s ease;
+  opacity: 1;
 }

@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>✨ Tamagotchi Virtual Premium ✨</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Nunito', sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+    
+    .floating-particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      animation: float 8s infinite ease-in-out;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+    
+    .tamagotchi-container {
+      background: linear-gradient(145deg, #2c3e50, #34495e);
+      border-radius: 40px;
+      padding: 30px;
+      box-shadow: 
+        0 25px 50px rgba(0,0,0,0.3),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+      max-width: 480px;
+      width: 100%;
+      position: relative;
+      border: 6px solid #1a252f;
+      z-index: 10;
+    }
+    
+    .screen {
+      background: linear-gradient(145deg, #1e3a1e, #2d5a2d);
+      border-radius: 25px;
+      padding: 25px;
+      margin-bottom: 25px;
+      border: 4px solid #0d2d0d;
+      position: relative;
+      overflow: visible;
+    }
+    
+    .screen::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 1px, transparent 1px),
+        radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 20px 20px;
+      pointer-events: none;
+    }
+    
+    .notifications {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      color: #ff6b6b;
+      font-size: 12px;
+      font-weight: 700;
+      animation: blink 1.5s infinite;
+      background: rgba(255, 107, 107, 0.2);
+      padding: 5px 10px;
+      border-radius: 15px;
+      border: 1px solid #ff6b6b;
+      display: none;
+    }
+    
+    @keyframes blink {
+      0%, 50% { opacity: 1; transform: scale(1); }
+      51%, 100% { opacity: 0.3; transform: scale(0.95); }
+    }
+    
+    .tamagotchi-core {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    
+    .stats-side {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 110px;
+    }
+    
+    .stat {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 12px;
+      border-radius: 15px;
+      text-align: center;
+      position: relative;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .stat-label {
+      color: #bdc3c7;
+      font-size: 11px;
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .stat-value {
+      color: #00ff88;
+      font-size: 18px;
+      font-weight: 800;
+      text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    }
+    
+    .stat-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 3px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    
+    .stat-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stat-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+    
+    .happiness-fill { 
+      background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+      box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+    }
+    .hunger-fill { 
+      background: linear-gradient(90deg, #4ecdc4, #7fdbda);
+      box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+    }
+    .energy-fill { 
+      background: linear-gradient(90deg, #45b7d1, #74c7e3);
+      box-shadow: 0 0 10px rgba(69, 183, 209, 0.5);
+    }
+    .hygiene-fill { 
+      background: linear-gradient(90deg, #96ceb4, #b8dcc6);
+      box-shadow: 0 0 10px rgba(150, 206, 180, 0.5);
+    }
+    
+    .pet-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 200px;
+      height: 240px;
+      position: relative;
+      padding-top: 80px;
+    }
+    
+    .status-message-bubble {
+      position: static;
+      margin: 25px auto 0 auto;
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%);
+      color: #2c3e50;
+      border-radius: 25px;
+      padding: 16px 22px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      min-width: 180px;
+      max-width: 280px;
+      min-height: 45px;
+      white-space: normal;
+      word-wrap: break-word;
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 
+        0 10px 30px rgba(0,0,0,0.2),
+        0 5px 15px rgba(0,0,0,0.1),
+        inset 0 1px 0 rgba(255,255,255,0.9);
+      border: 2px solid rgba(255,215,0,0.4);
+      z-index: 100;
+      opacity: 1;
+      animation: none;
+    }
+    
+    .status-message-bubble::before,
+    .status-message-bubble::after {
+      display: none !important;
+    }
+    
+    @keyframes bubbleAppear {
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px) scale(0.8);
+        filter: blur(3px);
+      }
+      60% {
+        opacity: 0.9;
+        transform: translateX(-50%) translateY(-3px) scale(1.05);
+        filter: blur(0.5px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+        filter: blur(0px);
+      }
+    }
+    
+    @keyframes bubbleFloat {
+      0%, 100% { transform: translateX(-50%) translateY(0px) rotate(0deg); }
+      25% { transform: translateX(-50%) translateY(-3px) rotate(0.5deg); }
+      75% { transform: translateX(-50%) translateY(3px) rotate(-0.5deg); }
+    }
+    
+    .pet-gif {
+      width: 180px;
+      height: 180px;
+      border-radius: 20px;
+      box-shadow: 
+        0 10px 30px rgba(0,0,0,0.4),
+        0 0 0 3px rgba(255,255,255,0.1);
+      transition: all 0.3s ease;
+      filter: brightness(1.1) contrast(1.05);
+      object-fit: cover;
+    }
+    
+    .pet-gif:hover {
+      transform: scale(1.02);
+      box-shadow: 
+        0 15px 40px rgba(0,0,0,0.5),
+        0 0 0 3px rgba(255,255,255,0.2);
+    }
+    
+    .pet-name {
+      color: #00ff88;
+      font-size: 20px;
+      font-weight: 800;
+      margin-top: 15px;
+      text-shadow: 
+        0 0 20px rgba(0, 255, 136, 0.8),
+        0 0 40px rgba(0, 255, 136, 0.4);
+      letter-spacing: 1px;
+    }
+    
+    .stats-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-top: 20px;
+      gap: 15px;
+    }
+    
+    .age-panel, .state-panel {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 12px 18px;
+      border-radius: 20px;
+      text-align: center;
+      flex: 1;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+    
+    .age-panel .stat-value, .state-panel .stat-value {
+      color: #ffd700;
+      font-size: 14px;
+      font-weight: 700;
+      text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 25px;
+    }
+    
+    .button-column {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .btn {
+      background: linear-gradient(145deg, #3498db, #2980b9);
+      border: none;
+      color: white;
+      padding: 16px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 
+        0 8px 20px rgba(0,0,0,0.3),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .btn:hover::before {
+      left: 100%;
+    }
+    
+    .btn:hover {
+      transform: translateY(-3px) rotateX(5deg);
+      box-shadow: 
+        0 12px 25px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+    
+    .btn:active {
+      transform: translateY(-1px) rotateX(2deg);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .btn-feed { 
+      background: linear-gradient(145deg, #4ecdc4, #45b7d1);
+      border-left: 4px solid #26a69a;
+    }
+    .btn-play { 
+      background: linear-gradient(145deg, #ff6b6b, #e55252);
+      border-left: 4px solid #e74c3c;
+    }
+    .btn-sleep { 
+      background: linear-gradient(145deg, #9b59b6, #8e44ad);
+      border-left: 4px solid #7d3c98;
+    }
+    .btn-clean { 
+      background: linear-gradient(145deg, #2ecc71, #27ae60);
+      border-left: 4px solid #229954;
+    }
+    
+    .sleep-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(45, 55, 72, 0.95), rgba(74, 85, 104, 0.95));
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 21px;
+      z-index: 60;
+      backdrop-filter: blur(10px);
+    }
+    
+    .sleep-content {
+      text-align: center;
+      color: white;
+    }
+    
+    .sleep-title {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: #64b5f6;
+      text-shadow: 0 0 20px rgba(100, 181, 246, 0.5);
+    }
+    
+    .sleep-timer {
+      font-size: 36px;
+      font-weight: 800;
+      color: #ffd700;
+      margin: 20px 0;
+      text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+    }
+    
+    .progress-ring {
+      width: 120px;
+      height: 120px;
+      margin: 20px auto;
+    }
+    
+    .progress-ring-circle {
+      stroke: #4a5568;
+      stroke-width: 8;
+      fill: transparent;
+      r: 52;
+      cx: 60;
+      cy: 60;
+    }
+    
+    .progress-ring-progress {
+      stroke: #64b5f6;
+      stroke-width: 8;
+      fill: transparent;
+      r: 52;
+      cx: 60;
+      cy: 60;
+      stroke-dasharray: 326.7;
+      stroke-dashoffset: 326.7;
+      transition: stroke-dashoffset 1s ease;
+      transform: rotate(-90deg);
+      transform-origin: 60px 60px;
+    }
+    
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+    }
+    
+    .modal-content {
+      background: linear-gradient(145deg, #2c3e50, #34495e);
+      color: white;
+      padding: 35px;
+      border-radius: 25px;
+      text-align: center;
+      min-width: 350px;
+      max-width: 90vw;
+      box-shadow: 
+        0 25px 50px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+      border: 2px solid #4a5568;
+    }
+    
+    .game-modal .modal-content {
+      min-width: 400px;
+      max-width: 500px;
+    }
+    
+    .game-area {
+      margin: 20px 0;
+      padding: 20px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 15px;
+      border: 2px solid #4a5568;
+    }
+    
+    .memory-game {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    
+    .memory-card {
+      aspect-ratio: 1;
+      background: linear-gradient(145deg, #3498db, #2980b9);
+      border: none;
+      border-radius: 10px;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .memory-card:hover {
+      transform: scale(1.05);
+    }
+    
+    .memory-card.flipped {
+      background: linear-gradient(145deg, #e74c3c, #c0392b);
+      transform: rotateY(180deg);
+    }
+    
+    .memory-card.matched {
+      background: linear-gradient(145deg, #27ae60, #229954);
+      animation: pulse 0.5s ease;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    .game-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+    
+    .modal-btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 5px;
+    }
+    
+    .confirm-btn {
+      background: linear-gradient(145deg, #27ae60, #229954);
+      color: white;
+    }
+    
+    .cancel-btn, .close-btn {
+      background: linear-gradient(145deg, #95a5a6, #7f8c8d);
+      color: white;
+    }
+    
+    .modal-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .death-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(44, 62, 80, 0.9));
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 21px;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+    
+    .death-message {
+      color: #e74c3c;
+      font-size: 20px;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 25px;
+      text-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+    }
+    
+    .death-actions {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .restart-btn, .history-btn {
+      background: linear-gradient(145deg, #e74c3c, #c0392b);
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .history-btn {
+      background: linear-gradient(145deg, #9b59b6, #8e44ad);
+    }
+    
+    .restart-btn:hover, .history-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+    
+    /* Consejo estilo */
+    .consejo-abajo {
+      margin-top: 18px;
+      background: linear-gradient(90deg, #e6f7ff 60%, #d0f0ff 100%);
+      color: #005c7a;
+      border-radius: 18px;
+      padding: 13px 28px;
+      font-size: 1.08rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      min-width: 210px;
+      max-width: 260px;
+      text-align: center;
+      z-index: 20;
+      opacity: 0.98;
+      pointer-events: none;
+      border: 1.5px solid #b2e4f7;
+      position: relative;
+      margin: 15px auto 0;
+      left: 0;
+      transform: none;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      transition: background 0.3s;
+    }
+    .consejo-abajo:before {
+      content: '💡';
+      margin-right: 7px;
+      font-size: 1.1em;
+      vertical-align: middle;
+    }
+    
+    /* Responsive */
+    @media (max-width: 600px) {
+      .tamagotchi-container {
+        padding: 20px;
+        margin: 10px;
+      }
+      
+      .tamagotchi-core {
+        gap: 10px;
+      }
+      
+      .stats-side {
+        width: 90px;
+      }
+      
+      .pet-container {
+        width: 160px;
+        height: 200px;
+      }
+      
+      .pet-gif {
+        width: 140px;
+        height: 140px;
+      }
+      
+      .controls {
+        gap: 20px;
+      }
+      
+      .btn {
+        padding: 12px 8px;
+        font-size: 11px;
+      }
+    }
+    
+    #nube-emocional {
+      z-index: 200;
+      opacity: 1;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <!-- Partículas flotantes -->
+  <div class="floating-particles" id="particles"></div>
+
+  <div class="tamagotchi-container">
+    <div class="screen">
+      <div id="notifications" class="notifications"></div>
+
+      <!-- Overlay de sueño -->
+      <div id="sleep-overlay" class="sleep-overlay">
+        <div class="sleep-content">
+          <div class="sleep-title">💤 Durmiendo...</div>
+          <svg class="progress-ring">
+            <circle class="progress-ring-circle"></circle>
+            <circle class="progress-ring-progress" id="sleep-progress"></circle>
+          </svg>
+          <div class="sleep-timer" id="sleep-timer">5:00</div>
+          <p>Recuperando energía... ⚡</p>
+        </div>
+      </div>
+
+      <!-- Overlay de muerte -->
+      <div id="death-overlay" class="death-overlay">
+        <div class="death-message">
+          💀 Tu mascota ha muerto 💀<br />
+          <small id="death-reason">No la cuidaste bien...</small>
+        </div>
+        <div class="death-actions">
+          <button class="restart-btn" onclick="showNameModal()">🔄 Empezar de nuevo</button>
+          <button class="history-btn" onclick="showDeathHistory()">📜 Ver Historial</button>
+        </div>
+      </div>
+
+      <!-- Core del Tamagotchi -->
+      <div class="tamagotchi-core">
+        <div class="stats-side left-stats">
+          <div class="stat">
+            <span class="stat-label">❤️ Felicidad</span>
+            <span id="happiness-value" class="stat-value">100</span>
+            <div class="stat-bar">
+              <div id="happiness-bar" class="stat-fill happiness-fill" style="width: 100%"></div>
+            </div>
+          </div>
+          <div class="stat">
+            <span class="stat-label">⚡ Energía</span>
+            <span id="energy-value" class="stat-value">100</span>
+            <div class="stat-bar">
+              <div id="energy-bar" class="stat-fill energy-fill" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+
+      <div class="pet-container">
+          <img id="pet-gif" class="pet-gif" src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcjV5d2NlZzB4cW5xY3J5d2VhZzR4dGJtZ3VqZzB5dWZ6dGJmY3R2dSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/3OAQXuYQ0utkwFiTt2/giphy.gif" alt="Tu mascota virtual" />
+          <div id="pet-name" class="pet-name">Mascottita</div>
+        </div>
+
+        <div class="stats-side right-stats">
+          <div class="stat">
+            <span class="stat-label">🍽️ Hambre</span>
+            <span id="hunger-value" class="stat-value">100</span>
+            <div class="stat-bar">
+              <div id="hunger-bar" class="stat-fill hunger-fill" style="width: 100%"></div>
+            </div>
+          </div>
+          <div class="stat">
+            <span class="stat-label">🧼 Higiene</span>
+            <span id="hygiene-value" class="stat-value">100</span>
+            <div class="stat-bar">
+              <div id="hygiene-bar" class="stat-fill hygiene-fill" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas inferiores -->
+      <div class="stats-container">
+        <div class="age-panel">
+          <span id="age" class="stat-value">⏰ 0h 0m</span>
+        </div>
+        <div class="state-panel">
+          <span id="state-indicator" class="stat-value">😊 Contenta</span>
+        </div>
+      </div>
+
+      <!-- Mensaje de estado/consejo/emocional debajo de tiempo de vida y estado -->
+      <span id="mensaje-fijo" class="stat-label status-message-bubble">¡Tu mascota está esperando! ✨</span>
+
+      <!-- Consejo-abajo eliminado, la burbuja de estado/emocional ocupa su lugar -->
+    </div>
+
+    <!-- Controles -->
+    <div class="controls">
+      <div class="button-column">
+        <button class="btn btn-feed" onclick="performAction('comer')">
+          🍎<br><small>Comer</small>
+        </button>
+        <button class="btn btn-play" onclick="openGameModal()">
+          🎮<br><small>Jugar</small>
+        </button>
+      </div>
+      <div class="button-column">
+        <button class="btn btn-sleep" onclick="startSleeping()">
+          💤<br><small>Dormir</small>
+        </button>
+        <button class="btn btn-clean" onclick="performAction('asearse')">
+          🧼<br><small>Limpiar</small>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal del juego de memoria -->
+  <div id="game-modal" class="modal game-modal">
+    <div class="modal-content">
+      <h3>🎮 ¡Juego de Memoria!</h3>
+      <p>Encuentra las parejas para hacer feliz a tu mascota</p>
+      <div class="game-info">
+        <span>Parejas: <span id="pairs-found">0</span>/8</span>
+        <span>Movimientos: <span id="moves-count">0</span></span>
+      </div>
+      <div class="game-area">
+        <div class="memory-game" id="memory-game"></div>
+      </div>
+      <button class="modal-btn close-btn" onclick="closeGameModal()">Cerrar</button>
+    </div>
+  </div>
+
+  <div id="nube-emocional" style="position:fixed;top:18%;left:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,0.95);border-radius:30px;padding:24px 36px;box-shadow:0 4px 24px rgba(0,0,0,0.15);font-size:1.3rem;z-index:1000;text-align:center;transition:opacity 0.7s;opacity:0;display:none;"></div>
+
+ <script src="js.js"></script>
+</body>
+</html>

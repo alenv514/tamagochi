@@ -2,35 +2,88 @@
 // UTILIDADES
 // =========================
 const Utils = {
-    clamp: (value, min, max) => Math.max(min, Math.min(max, value)),
-    randomChoice: (array) => array[Math.floor(Math.random() * array.length)],
-    formatTime: (minutes) => {
-      const hours = Math.floor(minutes / 60);
-      const mins = minutes % 60;
-      return `${hours}h ${mins}m`;
-    },
-    updateStats: (stats, changes) => ({
-      ...stats,
-      ...Object.keys(changes).reduce((acc, key) => ({
-        ...acc,
-        [key]: Utils.clamp(stats[key] + changes[key], 0, 100)
-      }), {})
-    })
-  };
+  clamp: (value, min, max) => Math.max(min, Math.min(max, value)),
+  randomChoice: (array) => array[Math.floor(Math.random() * array.length)],
+  formatTime: (minutes) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
+  },
+  updateStats: (stats, changes) => ({
+    ...stats,
+    ...Object.keys(changes).reduce((acc, key) => ({
+      ...acc,
+      [key]: Utils.clamp(stats[key] + changes[key], 0, 100)
+    }), {})
+  })
+};
+
+// =========================
+// VARIABLES DE SUEÑO
+// =========================
+let isSleeping = false;
+let sleepMinutesRemaining = 0;
+
+function startSleeping(duration = 5) {
+  if (isSleeping || petContext.currentState.name === "muerta") return;
+  isSleeping = true;
+  sleepMinutesRemaining = duration;
+  document.getElementById('pet-gif').src = PetData.gifs.durmiendo;
+  document.getElementById('status-message').textContent = `${gameState.name} está durmiendo... 😴`;
+}
+
+// =========================
+// AUTOMATIC DEGRADE MODIFICADO
+// =========================
+function automaticDegrade() {
+  if (petContext.currentState.name === "muerta") return;
+
+  if (isSleeping) {
+    gameState.stats.energy = Utils.clamp(gameState.stats.energy + 6, 0, 100);
+    gameState.stats.hunger = Utils.clamp(gameState.stats.hunger - 1.5, 0, 100);
+    sleepMinutesRemaining--;
+
+    if (sleepMinutesRemaining <= 0 || gameState.stats.energy >= 100) {
+      isSleeping = false;
+      document.getElementById('status-message').textContent = `${gameState.name} ha despertado! 🌞`;
+    }
+  } else {
+    gameState.stats = degradeByTime(gameState.stats, 1);
+  }
+
+  gameState.age += 1;
+  updateDisplay();
+}
+
+// =========================
+// PERFORM ACTION BLOQUEA SI DUERME
+// =========================
+function performAction(action) {
+  if (petContext.currentState.name === "muerta" || isSleeping) return;
+  const newStats = petContext.performAction(action, gameState.stats);
+  gameState = { ...gameState, stats: newStats };
+  updateDisplay();
+}
+
+// =========================
+// BOTÓN EN HTML
+// =========================
+// <button onclick="startSleeping(5)">Dormir</button>
+
 
 // =========================
 // DATOS DE LA MASCOTA
 // =========================
 const PetData = {
   gifs: {
-    contenta: 'https://media.giphy.com/media/ICOgUNjpvO0PC/giphy.gif',
-    hambrienta: 'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExOW9raWw1MjQ4anZlZzgzaWRtZWNiY2UxcXpnYWp5Znhjb2dxMHdhYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/99bCcVD9GMIBcuOlNB/giphy.gif',
-    aburrida: 'https://media.giphy.com/media/l3vR3EssQ5ALagr7y/giphy.gif',
-    triste: '',
-    sucia: 'https://media.giphy.com/media/3oKIPnAiaMCws8nOsE/giphy.gif',
-    muerta: 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif',
-    durmiendo: 'https://media.giphy.com/media/YQk8nXloVftzW/giphy.gif',
-    jugando: 'https://media.giphy.com/media/11s7Ke7jcNxCHS/giphy.gif'
+    contenta:'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXdhNTU4emV4eGloeGl4Y2s5bmh0ZGI5cGs0cnVvM2ZrbnJrZTRrbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/3OAQXuYQ0utkwFiTt2/giphy.gif',
+    hambrienta: 'https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeWoxZDE1Ym1qeHh1NHN0cmZ2bGs5Y3c4N3V1bmxldWRhdW1wMzFzcCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/VgczOypzDaiQUj255m/giphy.gif',
+    aburrida: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGE0eXZxaXl1cWxtcWFtMjV2NDlyc2h2djN3MHN6Z3p0MnQ1ZWpxbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/Xbs2KHzuoisBKiw5gP/giphy.gif',
+    triste: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3FzbHpzczRiNmNqaHd6OXJhZ29uZzVvZjhhaTU0ZWRyZXYzMm90diZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/99bCcVD9GMIBcuOlNB/giphy.gif',
+    sucia: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXh6eXllb2Q2dXRqa2F6ZTltbWZmYnljY29hMXN5dGpmbmJhcXdycyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/J920Dq9epT74B8lmVk/giphy.gif',
+    muerta: 'https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXNjaTllajFxa2NobGEwcndjZzV1bWZnN2RjbWF4dGFzNWRpOGlpbyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/5OCW0BkC27wV1ZKhvZ/giphy.gif',
+    durmiendo: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXJkeXFnZTMyZTZmaXdvdDVoMTJyd3IwYnZndmZvMXBjcmJoeThieSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/90Vr6LOpoZ5VS5nDoW/giphy.gif',
+    jugando: 'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExMGxjbjhwaW1zejcxOTgzOXpudXJ5cDhranUxMXN0aGs0YjE4YzExYSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wOHkFujG7c2z2pWBDn/giphy.gif'
   },
   consejos: {
     contenta: ["¡Sigue así! Tu mascota está muy feliz", "Todo va perfecto, continúa cuidándola"],
@@ -253,6 +306,41 @@ const DeathTracker = {
     document.getElementById('death-overlay').style.display = info.isDead ? 'flex' : 'none';
     updateNotifications();
     saveGame();
+
+    // … código existente de updateDisplay() …
+
+
+// La caja de consejos siempre está visible, no se oculta nunca
+// La rotación de consejos se maneja aparte
+// Rotar los consejos que aparecen dentro de la caja
+function iniciarRotacionConsejos() {
+  let idx = 0;
+  setInterval(() => {
+    const estado = petContext.currentState.name;
+    const arr = PetData.consejos[estado] || [];
+    if (arr.length === 0) {
+      document.getElementById('consejos-list').innerHTML = '';
+      return;
+    }
+    // Mostrar sólo un mensaje cada vez
+    const mensaje = arr[idx % arr.length];
+    const ul = document.getElementById('consejos-list');
+    // Primera, haz desaparecer el anterior (opcional para animación)
+    Array.from(ul.children).forEach(li => li.style.opacity = '0');
+    // Tras 300ms, reemplaza y aparece
+    setTimeout(() => {
+      ul.innerHTML = `<li>${mensaje}</li>`;
+      // forzar reflow y mostrar
+      const li = ul.querySelector('li');
+      li.style.opacity = '0';
+      void li.offsetWidth;
+      li.style.opacity = '1';
+    }, 300);
+    idx++;
+  }, 4000); // cada 7 segundos rota al siguiente mensaje
+}
+
+
   }
   
   function updateNotifications() {
@@ -344,8 +432,11 @@ const DeathTracker = {
     loadGame();
     setInterval(automaticDegrade, 60000);
     setInterval(autoAdvice, 45000);
+    // ¡Arrancamos la rotación de mensajes en la cajita!
+    iniciarRotacionConsejos();
+    // Inicia la lluvia de emocionesJugador
+    setTimeout(lanzarEmocionAleatoria, 5000);
     setInterval(autoMensajeEmocional, 5000);
-    
     // Event listener para Enter en el modal de nombre
     document.getElementById('new-pet-name').addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
@@ -383,5 +474,39 @@ const DeathTracker = {
   function hideHistoryModal() {
     document.getElementById('history-modal').style.display = 'none';
   }
+
+  // Muestra y oculta la burbuja con el mensaje dado
+function mostrarBurbuja(mensaje) {
+  const burbuja = document.getElementById('status-message');
+  burbuja.textContent = mensaje;
+  burbuja.style.transition = 'opacity 0.4s';
+  burbuja.style.opacity = '1';
+  burbuja.style.pointerEvents = 'auto';
+  // Reiniciar animación
+  burbuja.style.animation = 'none';
+  void burbuja.offsetWidth;
+  burbuja.style.animation = '';
+  // Ocultar tras 4 segundos (y limpiar cualquier timeout anterior)
+  if (window._burbujaTimeout) clearTimeout(window._burbujaTimeout);
+  window._burbujaTimeout = setTimeout(() => {
+    burbuja.style.opacity = '0';
+    burbuja.style.pointerEvents = 'none';
+  }, 4000);
+}
+
+// Programa la siguiente aparición de emoción al azar
+function lanzarEmocionAleatoria() {
+  if (petContext.currentState.name === 'muerta') return;
+  const estado = petContext.currentState.name;
+  const mensajes = PetData.emocionesJugador[estado] || [];
+  if (mensajes.length) {
+    const msg = Utils.randomChoice(mensajes);
+    mostrarBurbuja(msg);
+  }
+  // Próxima aparición en 7–15 s
+  const proximo = Math.random() * 9000 + 9000;
+  setTimeout(lanzarEmocionAleatoria, proximo);
+}
+
   
   window.addEventListener("load", initGame);

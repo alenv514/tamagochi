@@ -23,6 +23,13 @@
         </div>
       </div>
 
+        <!-- CAJA DE CONSEJOS -->
+  <div id="consejos-container" class="consejos-container">
+    <h4>Consejos</h4>
+    <ul id="consejos-list"></ul>
+  </div>
+
+
       <!-- Modal para cambiar nombre -->
       <div id="name-modal" class="modal" style="display: none;">
         <div class="modal-content">
@@ -68,6 +75,49 @@
 
         <div class="pet-container">
           <div id="status-message" class="status-message-bubble">¡Tu mascota está esperando!</div>
+<script>
+// --- BURBUJA EMOCIONAL ALEATORIA ---
+function mostrarBurbujaEmocional(mensaje) {
+  const burbuja = document.getElementById('status-message');
+  if (!burbuja) return;
+  burbuja.textContent = mensaje;
+  burbuja.style.opacity = '1';
+  burbuja.style.pointerEvents = 'auto';
+  // Reiniciar animación
+  burbuja.style.animation = 'none';
+  void burbuja.offsetWidth;
+  burbuja.style.animation = '';
+  // Ocultar después de 3.5s
+  setTimeout(() => {
+    burbuja.style.opacity = '0';
+    burbuja.style.pointerEvents = 'none';
+  }, 30000);
+}
+
+function lanzarBurbujaEmocionalAleatoria() {
+  // Mensajes de ejemplo, puedes personalizar
+  const mensajes = [
+    'Gracias por cuidarme, me haces muy feliz ❤️',
+    '¿Jugamos un rato? ¡Te extraño!',
+    'Tengo hambre... pero te quiero 😔',
+    '¡Qué día tan bonito contigo!',
+    '¿Me das un abrazo?',
+    '¡Eres el mejor amigo del mundo!'
+  ];
+  const mensaje = mensajes[Math.floor(Math.random() * mensajes.length)];
+  mostrarBurbujaEmocional(mensaje);
+  // Próxima aparición entre 7 y 18 segundos
+  const proximo = Math.floor(Math.random() * 11000) + 7000;
+  setTimeout(lanzarBurbujaEmocionalAleatoria, proximo);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  // Inicialmente oculta
+  const burbuja = document.getElementById('status-message');
+  if (burbuja) burbuja.style.opacity = '0';
+  lanzarBurbujaEmocionalAleatoria();
+});
+</script>
           <img id="pet-gif" class="pet-gif" src="" alt="Tu mascota virtual" />
           <div id="pet-name" class="pet-name">Mascottita</div>
           
