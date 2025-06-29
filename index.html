@@ -71,6 +71,22 @@
               <div id="energy-bar" class="stat-fill energy-fill" style="width: 100%"></div>
             </div>
           </div>
+          <div class="stat">
+            <span class="stat-label">Hambre</span>
+            <span id="hunger-value" class="stat-value">100</span>
+            <div class="stat-bar">
+              <div id="hunger-bar" class="stat-fill hunger-fill" style="width: 100%"></div>
+            </div>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Higiene</span>
+            <span id="hygiene-value" class="stat-value">100</span>
+            <div class="stat-bar">
+              <div id="hygiene-bar" class="stat-fill hygiene-fill" style="width: 100%"></div>
+            </div>
+          </div>
+          <!-- Botón de información -->
+          <button class="btn info-btn" onclick="mostrarInfoMascota()" style="margin-top:15px;">ℹ️ Estado exacto</button>
         </div>
 
         <div class="pet-container">
@@ -123,26 +139,7 @@ window.addEventListener('DOMContentLoaded', () => {
           
           <div id="advice-box" class="advice-box">Los consejos aparecerán aquí...</div>
         </div>
-        
-
-        <div class="stats-side right-stats">
-          <div class="stat">
-            <span class="stat-label">Hambre</span>
-            <span id="hunger-value" class="stat-value">100</span>
-            <div class="stat-bar">
-              <div id="hunger-bar" class="stat-fill hunger-fill" style="width: 100%"></div>
-            </div>
-          </div>
-          <div class="stat">
-            <span class="stat-label">Higiene</span>
-            <span id="hygiene-value" class="stat-value">100</span>
-            <div class="stat-bar">
-              <div id="hygiene-bar" class="stat-fill hygiene-fill" style="width: 100%"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      
    
       <!-- Estadísticas combinadas (edad y estado) -->
       <div class="stats-container">
@@ -175,6 +172,17 @@ window.addEventListener('DOMContentLoaded', () => {
 </html>
 
 <style>
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  overflow-x: hidden;
+}
+
 .status-message-bubble {
   position: absolute;
   top: -80px; /* Más espacio arriba */
@@ -448,5 +456,21 @@ window.addEventListener('DOMContentLoaded', () => {
   text-align: center;
   padding: 20px;
   font-style: italic;
+}
+
+.info-btn {
+  background: #636e72;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+.info-btn:hover {
+  background: #00b894;
 }
 </style>

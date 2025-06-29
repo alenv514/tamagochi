@@ -13,7 +13,7 @@ const Utils = {
     ...stats,
     ...Object.keys(changes).reduce((acc, key) => ({
       ...acc,
-      [key]: Utils.clamp(stats[key] + changes[key], 0, 100)
+      [key]: Math.round(Utils.clamp(stats[key] + changes[key], 0, 100)) // <-- redondea aquí
     }), {})
   })
 };
@@ -30,6 +30,17 @@ function startSleeping(duration = 5) {
   sleepMinutesRemaining = duration;
   document.getElementById('pet-gif').src = PetData.gifs.durmiendo;
   document.getElementById('status-message').textContent = `${gameState.name} está durmiendo... 😴`;
+}
+
+function mostrarInfoMascota() {
+  const stats = gameState.stats;
+  alert(
+    `Estado actual de ${gameState.name}:\n\n` +
+    `Felicidad: ${stats.happiness}\n` +
+    `Energía: ${stats.energy}\n` +
+    `Hambre: ${stats.hunger}\n` +
+    `Higiene: ${stats.hygiene}`
+  );
 }
 
 // =========================
@@ -243,10 +254,10 @@ const DeathTracker = {
   const petContext = new PetContext();
   
   const degradeByTime = (stats, min) => ({
-    happiness: Utils.clamp(stats.happiness - min * 0.5, 0, 100),
-    hunger: Utils.clamp(stats.hunger - min * 1.5, 0, 100),
-    energy: Utils.clamp(stats.energy - min * 0.8, 0, 100),
-    hygiene: Utils.clamp(stats.hygiene - min * 0.7, 0, 100)
+    happiness: Math.round(Utils.clamp(stats.happiness - min * 0.5, 0, 100)),
+    hunger: Math.round(Utils.clamp(stats.hunger - min * 1.5, 0, 100)),
+    energy: Math.round(Utils.clamp(stats.energy - min * 0.8, 0, 100)),
+    hygiene: Math.round(Utils.clamp(stats.hygiene - min * 0.7, 0, 100))
   });
   
   function loadGame() {

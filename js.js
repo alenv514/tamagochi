@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Variables del Tamagotchi
   const tamagotchi = {
     name: "Mascottita",
+    character: "gato", // Nuevo campo para el personaje seleccionado
     stats: {
       happiness: 100,
       hunger: 100,
@@ -19,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     deathHistory: []
   };
 
-  // Elementos del DOM
+  // Elementos del DOM - CORRECCIÓN
   const elements = {
     happinessValue: document.getElementById('happiness-value'),
     happinessBar: document.getElementById('happiness-bar'),
@@ -33,7 +34,8 @@ document.addEventListener('DOMContentLoaded', function() {
     stateIndicator: document.getElementById('state-indicator'),
     petGif: document.getElementById('pet-gif'),
     petName: document.getElementById('pet-name'),
-    statusMessage: document.getElementById('mensaje-fijo'),
+    // CORRECCIÓN: Crear el elemento si no existe o usar uno que sí exista
+    statusMessage: document.getElementById('notifications') || document.getElementById('consejo-texto'),
     notifications: document.getElementById('notifications'),
     sleepOverlay: document.getElementById('sleep-overlay'),
     sleepTimer: document.getElementById('sleep-timer'),
@@ -46,16 +48,28 @@ document.addEventListener('DOMContentLoaded', function() {
     movesCount: document.getElementById('moves-count')
   };
 
-  // GIFs para diferentes estados
+  // GIFs para diferentes estados - ACTUALIZADOS
   const gifs = {
-    contenta: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXdhNTU4emV4eGloeGl4Y2s5bmh0ZGI5cGs0cnVvM2ZrbnJrZTRrbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/3OAQXuYQ0utkwFiTt2/giphy.gif',
-    hambrienta: 'https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeWoxZDE1Ym1qeHh1NHN0cmZ2bGs5Y3c4N3V1bmxldWRhdW1wMzFzcCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/VgczOypzDaiQUj255m/giphy.gif',
-    aburrida: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGE0eXZxaXl1cWxtcWFtMjV2NDlyc2h2djN3MHN6Z3p0MnQ1ZWpxbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/Xbs2KHzuoisBKiw5gP/giphy.gif',
-    triste: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3FzbHpzczRiNmNqaHd6OXJhZ29uZzVvZjhhaTU0ZWRyZXYzMm90diZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/99bCcVD9GMIBcuOlNB/giphy.gif',
-    sucia: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXh6eXllb2Q2dXRqa2F6ZTltbWZmYnljY29hMXN5dGpmbmJhcXdycyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/J920Dq9epT74B8lmVk/giphy.gif',
-    muerta: 'https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXNjaTllajFxa2NobGEwcndjZzV1bWZnN2RjbWF4dGFzNWRpOGlpbyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/5OCW0BkC27wV1ZKhvZ/giphy.gif',
-    durmiendo: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXJkeXFnZTMyZTZmaXdvdDVoMTJyd3IwYnZndmZvMXBjcmJoeThieSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/90Vr6LOpoZ5VS5nDoW/giphy.gif',
-    jugando: 'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExMGxjbjhwaW1zejcxOTgzOXpudXJ5cDhranUxMXN0aGs0YjE4YzExYSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wOHkFujG7c2z2pWBDn/giphy.gif'
+    gato: {
+      contenta: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXdhNTU4emV4eGloeGl4Y2s5bmh0ZGI5cGs0cnVvM2ZrbnJrZTRrbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/3OAQXuYQ0utkwFiTt2/giphy.gif',
+      hambrienta: 'https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeWoxZDE1Ym1qeHh1NHN0cmZ2bGs5Y3c4N3V1bmxldWRhdW1wMzFzcCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/VgczOypzDaiQUj255m/giphy.gif',
+      aburrida: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGE0eXZxaXl1cWxtcWFtMjV2NDlyc2h2djN3MHN6Z3p0MnQ1ZWpxbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/Xbs2KHzuoisBKiw5gP/giphy.gif',
+      triste: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3FzbHpzczRiNmNqaHd6OXJhZ29uZzVvZjhhaTU0ZWRyZXYzMm90diZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/99bCcVD9GMIBcuOlNB/giphy.gif',
+      sucia: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXh6eXllb2Q2dXRqa2F6ZTltbWZmYnljY29hMXN5dGpmbmJhcXdycyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/J920Dq9epT74B8lmVk/giphy.gif',
+      muerta: 'https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXNjaTllajFxa2NobGEwcndjZzV1bWZnN2RjbWF4dGFzNWRpOGlpbyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/5OCW0BkC27wV1ZKhvZ/giphy.gif',
+      durmiendo: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXJkeXFnZTMyZTZmaXdvdDVoMTJyd3IwYnZndmZvMXBjcmJoeThieSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/90Vr6LOpoZ5VS5nDoW/giphy.gif',
+      jugando: 'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExMGxjbjhwaW1zejcxOTgzOXpudXJ5cDhranUxMXN0aGs0YjE4YzExYSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wOHkFujG7c2z2pWBDn/giphy.gif'
+    },
+    pinguino: {
+      contenta: 'https://media.giphy.com/media/0bw8GYqGsDzrNkePBZ/giphy.gif', // Feliz
+      hambrienta: 'https://media.giphy.com/media/ond9LO3hgmBmNr0RJE/giphy.gif', // Hambriento
+      aburrida: 'https://media.giphy.com/media/35qxCMH8aWJ50GaENl/giphy.gif', // Aburrido
+      triste: 'https://media.giphy.com/media/GMzAZelJzUPsc6YnAa/giphy.gif', // Llorando
+      sucia: 'https://media.giphy.com/media/Lo9QAdGA6t592PIAJV/giphy.gif', // Sucio
+      muerta: 'https://media.giphy.com/media/aDAVL1L2JEhn4u6EaO/giphy.gif', // Muriendo
+      durmiendo: 'https://media.giphy.com/media/UgCw3nzd4qR00rdck7/giphy.gif', // Durmiendo
+      jugando: 'https://media.giphy.com/media/Hw3s7ZiTvIKjMLmCir/giphy.gif' // Jugando
+    }
   };
 
   // Estados posibles
@@ -89,46 +103,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Mostrar nube emocional flotante
   function mostrarNubeEmocional(mensaje) {
-    let nube = document.getElementById('nube-emocional');
-    if (!nube) {
-      nube = document.createElement('div');
-      nube.id = 'nube-emocional';
-      document.body.appendChild(nube);
-    }
-    nube.textContent = mensaje;
-    nube.style.opacity = '1';
-    nube.style.display = 'block';
-    // ¡Ahora la nube emocional NO desaparece automáticamente!
+    const notif = document.getElementById('emocion-notificacion');
+    const texto = document.getElementById('emocion-texto');
+    notif.style.display = 'flex';
+    texto.textContent = mensaje;
+    setTimeout(() => { notif.style.display = 'none'; }, 5000); // Se oculta tras 5s
   }
 
   // Mostrar consejo abajo de la mascota
   function mostrarConsejoAbajo(consejo) {
-    let consejoDiv = document.getElementById('consejo-abajo');
-    if (!consejoDiv) {
-      consejoDiv = document.createElement('div');
-      consejoDiv.id = 'consejo-abajo';
-      consejoDiv.style.position = 'absolute';
-      consejoDiv.style.left = '50%';
-      consejoDiv.style.transform = 'translateX(-50%)';
-      consejoDiv.style.bottom = '-40px';
-      consejoDiv.style.background = '#e6f7ff';
-      consejoDiv.style.color = '#005c7a';
-      consejoDiv.style.borderRadius = '18px';
-      consejoDiv.style.padding = '12px 24px';
-      consejoDiv.style.fontSize = '1.1rem';
-      consejoDiv.style.boxShadow = '0 2px 12px rgba(0,0,0,0.10)';
-      consejoDiv.style.minWidth = '220px';
-      consejoDiv.style.textAlign = 'center';
-      consejoDiv.style.zIndex = '900';
-      consejoDiv.style.opacity = '0.97';
-      consejoDiv.style.pointerEvents = 'none';
-      // Insertar dentro del pet-gif parent
-      const petContainer = elements.petGif.parentElement;
-      petContainer.appendChild(consejoDiv);
-    }
-    consejoDiv.textContent = consejo;
+    const notif = document.getElementById('consejo-notificacion');
+    const texto = document.getElementById('consejo-texto');
+    notif.style.display = 'flex';
+    texto.textContent = consejo;
   }
-
+  document.getElementById('cerrar-consejo').onclick = function() {
+    document.getElementById('consejo-notificacion').style.display = 'none';
+  }
 
   // Lógica para mostrar emociones periódicamente en burbuja flotante
   function autoMensajeEmocional() {
@@ -208,12 +199,67 @@ function initGame() {
 
   // Inicializar el Tamagotchi
   function init() {
-    updateDisplay();
+    // No actualizar display automáticamente, esperar a que se seleccione el personaje
     startGameLoop();
     createParticles();
-    
-    // Configurar el juego de memoria
     setupMemoryGame();
+    initializeStartMenu(); // Inicializar menú de selección
+  }
+
+  // Nueva función para inicializar el menú de selección
+  function initializeStartMenu() {
+    const characterOptions = document.querySelectorAll('.character-option');
+    const nameInput = document.getElementById('pet-name-input');
+    
+    // Seleccionar gato por defecto
+    if (characterOptions.length > 0) {
+      characterOptions[0].classList.add('selected');
+    }
+    
+    // Manejar selección de personaje
+    characterOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        characterOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+      });
+    });
+    
+    // Permitir Enter para iniciar
+    if (nameInput) {
+      nameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          startGame();
+        }
+      });
+    }
+  }
+
+  // Nueva función para iniciar el juego
+  function startGame() {
+    const nameInput = document.getElementById('pet-name-input');
+    const selectedCharacter = document.querySelector('.character-option.selected');
+    
+    if (!selectedCharacter) {
+      alert('Por favor selecciona un personaje');
+      return;
+    }
+    
+    // Obtener nombre (usar placeholder si está vacío)
+    const petName = nameInput.value.trim() || 'Mascottita';
+    const characterType = selectedCharacter.dataset.character;
+    
+    // Configurar tamagotchi
+    tamagotchi.name = petName;
+    tamagotchi.character = characterType;
+    
+    // Ocultar modal de inicio
+    document.getElementById('start-modal').style.display = 'none';
+    
+    // Actualizar display inicial
+    updateDisplay();
+    
+    // Mostrar mensaje de bienvenida
+    showNotification(`¡Hola! Soy ${petName} 😊`, 3000);
   }
 
   // Actualizar la visualización
@@ -221,26 +267,26 @@ function initGame() {
     // Actualizar barras y valores
     elements.happinessValue.textContent = tamagotchi.stats.happiness;
     elements.happinessBar.style.width = `${tamagotchi.stats.happiness}%`;
-    
+
     elements.hungerValue.textContent = tamagotchi.stats.hunger;
     elements.hungerBar.style.width = `${tamagotchi.stats.hunger}%`;
-    
+
     elements.energyValue.textContent = tamagotchi.stats.energy;
     elements.energyBar.style.width = `${tamagotchi.stats.energy}%`;
-    
+
     elements.hygieneValue.textContent = tamagotchi.stats.hygiene;
     elements.hygieneBar.style.width = `${tamagotchi.stats.hygiene}%`;
-    
+
     // Actualizar edad
-    elements.ageDisplay.textContent = `⏰ ${tamagotchi.age.hours}h ${tamagotchi.age.minutes}m`;
-    
+    elements.ageDisplay.textContent = `${tamagotchi.age.hours}h ${tamagotchi.age.minutes}m`;
+
     // Actualizar estado
     updateState();
     elements.stateIndicator.textContent = states[tamagotchi.state];
-    
+
     // Actualizar GIF según estado
     updatePetGif();
-    
+
     // Actualizar nombre
     elements.petName.textContent = tamagotchi.name;
   }
@@ -272,36 +318,38 @@ function initGame() {
     }
   }
 
-  // Actualizar el GIF de la mascota según su estado
+  // Actualizar el GIF de la mascota según su estado - MODIFICADO
   function updatePetGif() {
+    const characterGifs = gifs[tamagotchi.character];
+    
     if (tamagotchi.isDead) {
-      elements.petGif.src = gifs.muerta;
+      elements.petGif.src = characterGifs.muerta;
       return;
     }
     
     if (tamagotchi.isSleeping) {
-      elements.petGif.src = gifs.durmiendo;
+      elements.petGif.src = characterGifs.durmiendo;
       return;
     }
     
     switch(tamagotchi.state) {
       case "feliz":
-        elements.petGif.src = gifs.contenta;
+        elements.petGif.src = characterGifs.contenta;
         break;
       case "hambrienta":
-        elements.petGif.src = gifs.hambrienta;
+        elements.petGif.src = characterGifs.hambrienta;
         break;
       case "cansada":
-        elements.petGif.src = gifs.triste;
+        elements.petGif.src = characterGifs.triste;
         break;
       case "sucia":
-        elements.petGif.src = gifs.sucia;
+        elements.petGif.src = characterGifs.sucia;
         break;
       case "enferma":
-        elements.petGif.src = gifs.triste;
+        elements.petGif.src = characterGifs.triste;
         break;
       default:
-        elements.petGif.src = gifs.contenta;
+        elements.petGif.src = characterGifs.contenta;
     }
   }
 
@@ -317,12 +365,8 @@ function initGame() {
 
   // Mostrar mensaje de estado
   function showStatusMessage(message, duration = 3000) {
-    elements.statusMessage.textContent = message;
-    elements.statusMessage.style.opacity = '1';
-    
-    setTimeout(() => {
-      elements.statusMessage.style.opacity = '0';
-    }, duration);
+    // Usar el elemento de notificaciones
+    showNotification(message, duration);
   }
 
   // Bucle principal del juego
@@ -339,46 +383,44 @@ function initGame() {
       }
     }, 60000); // 1 minuto real = 1 minuto en el juego
     
-    // Degradación de estadísticas cada 10 segundos
+    // Degradación de estadísticas cada 3 segundos
     setInterval(() => {
       if (!tamagotchi.isDead && !tamagotchi.isSleeping) {
         // Disminuir hambre
-        tamagotchi.stats.hunger = Math.max(0, tamagotchi.stats.hunger - 2);
-        
+        tamagotchi.stats.hunger = Math.max(0, tamagotchi.stats.hunger - 5);
+
         // Disminuir felicidad si el hambre es baja
         if (tamagotchi.stats.hunger < 50) {
-          tamagotchi.stats.happiness = Math.max(0, tamagotchi.stats.happiness - 1);
+          tamagotchi.stats.happiness = Math.max(0, tamagotchi.stats.happiness - 5);
         }
-        
+
         // Disminuir energía
-        tamagotchi.stats.energy = Math.max(0, tamagotchi.stats.energy - 1);
-        
+        tamagotchi.stats.energy = Math.max(0, tamagotchi.stats.energy - 5);
+
         // Disminuir higiene
-        tamagotchi.stats.hygiene = Math.max(0, tamagotchi.stats.hygiene - 1);
-        
+        tamagotchi.stats.hygiene = Math.max(0, tamagotchi.stats.hygiene - 5);
+
         // Notificaciones de advertencia
         if (tamagotchi.stats.hunger < 30) {
           showNotification("¡Tengo hambre! 🍎");
         }
-        
         if (tamagotchi.stats.energy < 30) {
           showNotification("¡Estoy cansada! 💤");
         }
-        
         if (tamagotchi.stats.hygiene < 30) {
           showNotification("¡Necesito un baño! 🧼");
         }
-        
+
         // Comprobar si ha muerto
         checkDeath();
-        
+
         // Actualizar visualización
         updateDisplay();
       }
-    }, 10000); // Cada 10 segundos
+    }, 3000); // Cada 3 segundos
   }
 
-  // Comprobar si la mascota ha muerto
+  // Comprobar si la mascota ha muerto - MODIFICADO
   function checkDeath() {
     if (tamagotchi.stats.happiness <= 0 || tamagotchi.stats.hunger <= 0 || 
         tamagotchi.stats.energy <= 0 || tamagotchi.stats.hygiene <= 0) {
@@ -391,19 +433,83 @@ function initGame() {
       if (tamagotchi.stats.hygiene <= 0) deathReason = "Murió por falta de higiene... 🧼";
       if (tamagotchi.stats.happiness <= 0) deathReason = "Murió de tristeza... 💔";
       
-      elements.deathReason.textContent = deathReason;
-      elements.deathOverlay.style.display = 'flex';
-      
       // Guardar en el historial de muertes
       tamagotchi.deathHistory.push({
         name: tamagotchi.name,
+        character: tamagotchi.character, // Guardar también el personaje
         age: `${tamagotchi.age.hours}h ${tamagotchi.age.minutes}m`,
         reason: deathReason,
         date: new Date().toLocaleString()
       });
       
+      // Mostrar overlay de muerte brevemente y luego regresar al menú
+      elements.deathReason.textContent = deathReason;
+      elements.deathOverlay.style.display = 'flex';
       updateDisplay();
+      
+      // Después de 3 segundos, regresar al menú de selección
+      setTimeout(() => {
+        returnToStartMenu();
+      }, 3000);
     }
+  }
+
+  // Nueva función para regresar al menú de inicio
+  function returnToStartMenu() {
+    // Ocultar overlay de muerte
+    elements.deathOverlay.style.display = 'none';
+    
+    // Resetear el tamagotchi a valores iniciales
+    tamagotchi.name = "Mascottita";
+    tamagotchi.character = "gato";
+    tamagotchi.stats = {
+      happiness: 100,
+      hunger: 100,
+      energy: 100,
+      hygiene: 100
+    };
+    tamagotchi.age = {
+      hours: 0,
+      minutes: 0
+    };
+    tamagotchi.state = "contenta";
+    tamagotchi.isSleeping = false;
+    tamagotchi.isDead = false;
+    
+    // Mostrar el modal de inicio nuevamente
+    document.getElementById('start-modal').style.display = 'flex';
+    
+    // Resetear la selección del menú
+    const characterOptions = document.querySelectorAll('.character-option');
+    const nameInput = document.getElementById('pet-name-input');
+    
+    // Limpiar selección anterior
+    characterOptions.forEach(opt => opt.classList.remove('selected'));
+    
+    // Seleccionar gato por defecto
+    if (characterOptions.length > 0) {
+      characterOptions[0].classList.add('selected');
+    }
+    
+    // Limpiar el input de nombre
+    if (nameInput) {
+      nameInput.value = '';
+    }
+    
+    // Mostrar notificación
+    showNotification("💔 Tu mascota ha fallecido. ¡Comienza de nuevo!", 4000);
+  }
+
+  // Modificar la función restart para que también use el menú - OPCIONAL
+  function restart(newName) {
+    // En lugar de reiniciar directamente, regresar al menú
+    returnToStartMenu();
+  }
+
+  // Modificar showNameModal para usar el nuevo sistema - OPCIONAL  
+  function showNameModal() {
+    // En lugar del prompt, regresar al menú de selección
+    returnToStartMenu();
   }
 
   // Acciones del Tamagotchi
@@ -414,18 +520,20 @@ function initGame() {
       return;
     }
     
+    const characterGifs = gifs[tamagotchi.character];
+    
     switch(action) {
       case 'comer':
         tamagotchi.stats.hunger = Math.min(100, tamagotchi.stats.hunger + 30);
         tamagotchi.stats.hygiene = Math.max(0, tamagotchi.stats.hygiene - 5);
-        elements.petGif.src = gifs.contenta;
+        elements.petGif.src = characterGifs.contenta;
         showStatusMessage("¡Ñam ñam! Delicioso 🍎", 2000);
         setTimeout(() => updatePetGif(), 2000);
         break;
         
       case 'asearse':
         tamagotchi.stats.hygiene = Math.min(100, tamagotchi.stats.hygiene + 40);
-        elements.petGif.src = gifs.contenta;
+        elements.petGif.src = characterGifs.contenta;
         showStatusMessage("¡Qué limpia me siento! 🧼", 2000);
         setTimeout(() => updatePetGif(), 2000);
         break;
@@ -437,7 +545,7 @@ function initGame() {
         }
         tamagotchi.stats.energy = Math.max(0, tamagotchi.stats.energy - 15);
         tamagotchi.stats.happiness = Math.min(100, tamagotchi.stats.happiness + 20);
-        elements.petGif.src = gifs.jugando;
+        elements.petGif.src = characterGifs.jugando;
         showStatusMessage("¡Esto es divertido! 🎮", 2000);
         setTimeout(() => updatePetGif(), 2000);
         break;
@@ -446,55 +554,80 @@ function initGame() {
     updateDisplay();
   }
 
-  // Mecánica de sueño
+  // Mecánica de sueño simplificada - 3 segundos fijos - CORREGIDA
   function startSleeping() {
     if (tamagotchi.isDead) return;
     if (tamagotchi.isSleeping) {
-      wakeUp();
-      return;
+        return; // No permitir interrumpir el sueño
     }
-    
+
     tamagotchi.isSleeping = true;
     elements.sleepOverlay.style.display = 'flex';
-    showStatusMessage("Zzzzz... 💤");
-    updatePetGif();
+    elements.sleepOverlay.setAttribute('aria-hidden', 'false');
     
-    let sleepTime = 5 * 60; // 5 minutos en segundos
-    let sleepInterval = setInterval(() => {
-      sleepTime--;
-      
-      // Actualizar temporizador visual
-      let minutes = Math.floor(sleepTime / 60);
-      let seconds = sleepTime % 60;
-      elements.sleepTimer.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
-      
-      // Actualizar círculo de progreso
-      let progress = 326.7 - ((sleepTime / (5 * 60)) * 326.7);
-      elements.sleepProgress.style.strokeDashoffset = progress;
-      
-      // Recuperar energía mientras duerme
-      if (sleepTime % 10 === 0) {
-        tamagotchi.stats.energy = Math.min(100, tamagotchi.stats.energy + 10);
-        updateDisplay();
-      }
-      
-      // Despertar cuando termine el tiempo
-      if (sleepTime <= 0) {
-        clearInterval(sleepInterval);
-        wakeUp();
-      }
-    }, 1000);
-  }
+    // CORRECCIÓN: Usar showNotification en lugar de showStatusMessage
+    showNotification("Zzzzz... 💤");
+    updatePetGif();
 
-  function wakeUp() {
+    const sleepDuration = 3; // 3 segundos fijos
+    let sleepTime = sleepDuration;
+    
+    // Mostrar el tiempo inicial
+    elements.sleepTimer.textContent = `00:0${sleepTime}`;
+
+    // Configurar el progreso inicial del círculo (empezar vacío)
+    const circumference = 2 * Math.PI * 52; // r=52
+    elements.sleepProgress.style.strokeDasharray = circumference;
+    elements.sleepProgress.style.strokeDashoffset = circumference; // Empezar vacío
+
+    // Deshabilitar el botón de dormir
+    const sleepButton = document.querySelector('.btn-sleep');
+    if (sleepButton) {
+        sleepButton.disabled = true;
+        sleepButton.innerHTML = '💤 Durmiendo...';
+    }
+
+    let sleepInterval = setInterval(() => {
+        sleepTime--;
+
+        // Actualizar temporizador visual
+        elements.sleepTimer.textContent = `00:0${sleepTime}`;
+
+        // Actualizar progreso visual del círculo (se va llenando)
+        const progressPercent = (sleepDuration - sleepTime) / sleepDuration;
+        const offset = circumference - (progressPercent * circumference);
+        elements.sleepProgress.style.strokeDashoffset = offset;
+
+        // Despertar cuando termine el tiempo
+        if (sleepTime <= 0) {
+            clearInterval(sleepInterval);
+            wakeUp();
+        }
+    }, 1000);
+}
+
+function wakeUp() {
+    // Recuperar 5 de energía
+    tamagotchi.stats.energy = Math.min(100, tamagotchi.stats.energy + 20);
+    
     tamagotchi.isSleeping = false;
     elements.sleepOverlay.style.display = 'none';
-    showStatusMessage("¡Buenos días! 🌞", 2000);
+    elements.sleepOverlay.setAttribute('aria-hidden', 'true');
+    
+    // CORRECCIÓN: Usar showNotification
+    showNotification("¡Descansé un poquito! +20 energía ⚡", 3000);
     updatePetGif();
     updateDisplay();
-  }
 
-  // Juego de memoria
+    // Restaurar el botón de dormir
+    const sleepButton = document.querySelector('.btn-sleep');
+    if (sleepButton) {
+        sleepButton.disabled = false;
+        sleepButton.innerHTML = '💤 Dormir';
+    }
+}
+
+// Juego de memoria
   function setupMemoryGame() {
     const cards = ['🍎', '🍕', '🍦', '🍔', '🍓', '🍪', '🍉', '🍍'];
     const gameCards = [...cards, ...cards]; // Duplicar para hacer parejas
@@ -625,20 +758,29 @@ function initGame() {
   }
 
   function showDeathHistory() {
+    const modal = document.getElementById('history-modal');
+    const list = document.getElementById('history-list');
+    list.innerHTML = "";
+
     if (tamagotchi.deathHistory.length === 0) {
-      alert("No hay historial de mascotas anteriores.");
-      return;
+      list.innerHTML = '<div class="no-deaths">No hay historial de mascotas anteriores.</div>';
+    } else {
+      tamagotchi.deathHistory.forEach((pet, index) => {
+        list.innerHTML += `
+          <div class="death-entry">
+            <div class="death-entry-header">#${index + 1}: ${pet.name}</div>
+            <div class="death-entry-info">Edad: ${pet.age}</div>
+            <div class="death-entry-info">Fecha: ${pet.date}</div>
+            <div class="death-entry-reason">${pet.reason}</div>
+          </div>
+        `;
+      });
     }
-    
-    let historyText = "📜 Historial de Mascotas:\n\n";
-    tamagotchi.deathHistory.forEach((pet, index) => {
-      historyText += `#${index + 1}: ${pet.name}\n`;
-      historyText += `Edad: ${pet.age}\n`;
-      historyText += `Causa: ${pet.reason}\n`;
-      historyText += `Fecha: ${pet.date}\n\n`;
-    });
-    
-    alert(historyText);
+    modal.style.display = "flex";
+  }
+
+  function closeHistoryModal() {
+    document.getElementById('history-modal').style.display = "none";
   }
 
   // Efecto de partículas flotantes
@@ -671,11 +813,15 @@ function initGame() {
   // Inicializar el juego
   init();
 
-  // Exponer funciones globales
+  // Exponer funciones globales - ACTUALIZADO
   window.performAction = performAction;
   window.startSleeping = startSleeping;
   window.openGameModal = openGameModal;
   window.closeGameModal = closeGameModal;
   window.showNameModal = showNameModal;
   window.showDeathHistory = showDeathHistory;
+  window.closeHistoryModal = closeHistoryModal;
+  window.startGame = startGame; // Nueva función global
+  window.initializeStartMenu = initializeStartMenu;
+  window.returnToStartMenu = returnToStartMenu; // Exponer la nueva función globalmente
 });
