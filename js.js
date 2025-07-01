@@ -49,6 +49,8 @@ document.addEventListener('DOMContentLoaded', function() {
     movesCount: document.getElementById('moves-count')
   };
 
+  const bgMusic = document.getElementById('bg-music');
+
   // GIFs para diferentes estados - ACTUALIZADOS
   const gifs = {
     gato: {
@@ -462,6 +464,13 @@ function startGame() {
 
   // Arrancar bucles de edad y estadísticas
   startGameLoop();
+
+  if (bgMusic) {
+    bgMusic.currentTime = 0;   // desde el principio
+    bgMusic.volume      = 0.2; // volumen al 20% (ajusta a tu gusto)
+    bgMusic.play();
+  }
+
 }
 
 // 1) Declara las variables en el scope exterior
@@ -523,6 +532,7 @@ function startGameLoop() {
         tamagotchi.stats.energy <= 0 || tamagotchi.stats.hygiene <= 0) {
       tamagotchi.isDead = true;
 
+        if (bgMusic) bgMusic.pause();
         clearInterval(ageInterval);
         clearInterval(statsInterval);
 
@@ -629,14 +639,31 @@ function startGameLoop() {
     const characterGifs = gifs[tamagotchi.character];
     
     switch(action) {
+      
       case 'comer':
+        // 1) Reproducir sonido de alimentar
+        const feedSound = document.getElementById('feed-sound');
+        if (feedSound) {
+          feedSound.currentTime = 0;
+          feedSound.play();
+        }
+
+        // 2) Lógica de alimentar
+        if (tamagotchi.stats.hunger >= 100) {
+          showNotification("No tengo hambre ahora mismo.");
+          return;
+        }
         tamagotchi.stats.hunger = Math.min(100, tamagotchi.stats.hunger + 30);
         tamagotchi.stats.hygiene = Math.max(0, tamagotchi.stats.hygiene - 5);
+
+        // 3) Actualizar visual y notificaciones
         elements.petGif.src = characterGifs.contenta;
         showStatusMessage("¡Ñam ñam! Delicioso 🍎", 2000);
-        setTimeout(() => updatePetGif(), 2000);
+        setTimeout(() => {
+          updatePetGif();
+          updateDisplay();
+        }, 2000);
         break;
-        
       case 'asearse':
         tamagotchi.stats.hygiene = Math.min(100, tamagotchi.stats.hygiene + 40);
         elements.petGif.src = characterGifs.contenta;
