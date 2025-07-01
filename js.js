@@ -237,33 +237,7 @@ function initGame() {
     }
   }
 
-  // Nueva función para iniciar el juego
-  function startGame() {
-    const nameInput = document.getElementById('pet-name-input');
-    const selectedCharacter = document.querySelector('.character-option.selected');
-    
-    if (!selectedCharacter) {
-      alert('Por favor selecciona un personaje');
-      return;
-    }
-    
-    // Obtener nombre (usar placeholder si está vacío)
-    const petName = nameInput.value.trim() || 'Mascottita';
-    const characterType = selectedCharacter.dataset.character;
-    
-    // Configurar tamagotchi
-    tamagotchi.name = petName;
-    tamagotchi.character = characterType;
-    
-    // Ocultar modal de inicio
-    document.getElementById('start-modal').style.display = 'none';
-    
-    // Actualizar display inicial
-    updateDisplay();
-    
-    // Mostrar mensaje de bienvenida
-    showNotification(`¡Hola! Soy ${petName} 😊`, 3000);
-  }
+  
 
   // Actualizar la visualización
   function updateDisplay() {
