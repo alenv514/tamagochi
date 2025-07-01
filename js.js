@@ -291,67 +291,94 @@ function initGame() {
     elements.petName.textContent = tamagotchi.name;
   }
 
-  // Actualizar el estado del Tamagotchi
-  function updateState() {
-    if (tamagotchi.isDead) {
-      tamagotchi.state = "muerta";
-      return;
-    }
-    
-    if (tamagotchi.isSleeping) {
-      return;
-    }
-    
-    if (tamagotchi.stats.happiness <= 20 || tamagotchi.stats.hunger <= 20 || 
-        tamagotchi.stats.energy <= 20 || tamagotchi.stats.hygiene <= 20) {
-      tamagotchi.state = "enferma";
-    } else if (tamagotchi.stats.happiness >= 80) {
-      tamagotchi.state = "feliz";
-    } else if (tamagotchi.stats.hunger <= 40) {
-      tamagotchi.state = "hambrienta";
-    } else if (tamagotchi.stats.energy <= 40) {
-      tamagotchi.state = "cansada";
-    } else if (tamagotchi.stats.hygiene <= 40) {
-      tamagotchi.state = "sucia";
-    } else {
-      tamagotchi.state = "contenta";
-    }
+  // ———————————————
+// 1) Actualizar estado
+function updateState() {
+  if (tamagotchi.isDead) {
+    tamagotchi.state = "muerta";
+    return;
   }
 
-  // Actualizar el GIF de la mascota según su estado - MODIFICADO
-  function updatePetGif() {
-    const characterGifs = gifs[tamagotchi.character];
-    
-    if (tamagotchi.isDead) {
-      elements.petGif.src = characterGifs.muerta;
-      return;
-    }
-    
-    if (tamagotchi.isSleeping) {
-      elements.petGif.src = characterGifs.durmiendo;
-      return;
-    }
-    
-    switch(tamagotchi.state) {
-      case "feliz":
-        elements.petGif.src = characterGifs.contenta;
-        break;
-      case "hambrienta":
-        elements.petGif.src = characterGifs.hambrienta;
-        break;
-      case "cansada":
-        elements.petGif.src = characterGifs.triste;
-        break;
-      case "sucia":
-        elements.petGif.src = characterGifs.sucia;
-        break;
-      case "enferma":
-        elements.petGif.src = characterGifs.triste;
-        break;
-      default:
-        elements.petGif.src = characterGifs.contenta;
-    }
+  if (tamagotchi.isSleeping) {
+    return;
   }
+
+  // 1. Crítico: cualquier stat ≤ 20 → enferma
+  if (
+    tamagotchi.stats.happiness <= 20 ||
+    tamagotchi.stats.hunger    <= 20 ||
+    tamagotchi.stats.energy    <= 20 ||
+    tamagotchi.stats.hygiene   <= 20
+  ) {
+    tamagotchi.state = "enferma";
+
+  // 2. Hambre → hambrienta
+  } else if (tamagotchi.stats.hunger <= 40) {
+    tamagotchi.state = "hambrienta";
+
+  // 3. Energía → cansada
+  } else if (tamagotchi.stats.energy <= 40) {
+    tamagotchi.state = "cansada";
+
+  // 4. Higiene → sucia
+  } else if (tamagotchi.stats.hygiene <= 40) {
+    tamagotchi.state = "sucia";
+
+  // 5. Felicidad alta → feliz
+  } else if (tamagotchi.stats.happiness >= 80) {
+    tamagotchi.state = "feliz";
+
+  // 6. Felicidad media → aburrida
+  } else if (tamagotchi.stats.happiness >= 50) {
+    tamagotchi.state = "aburrida";
+
+  // 7. Felicidad baja → triste
+  } else {
+    tamagotchi.state = "triste";
+  }
+}
+
+
+// ———————————————
+// 2) Actualizar el GIF según el estado
+function updatePetGif() {
+  const characterGifs = gifs[tamagotchi.character];
+
+  if (tamagotchi.isDead) {
+    elements.petGif.src = characterGifs.muerta;
+    return;
+  }
+  if (tamagotchi.isSleeping) {
+    elements.petGif.src = characterGifs.durmiendo;
+    return;
+  }
+
+  switch (tamagotchi.state) {
+    case "feliz":
+      elements.petGif.src = characterGifs.contenta;
+      break;
+    case "hambrienta":
+      elements.petGif.src = characterGifs.hambrienta;
+      break;
+    case "cansada":
+      elements.petGif.src = characterGifs.triste;
+      break;
+    case "sucia":
+      elements.petGif.src = characterGifs.sucia;
+      break;
+    case "enferma":
+      elements.petGif.src = characterGifs.triste;
+      break;
+    case "aburrida":
+      elements.petGif.src = characterGifs.aburrida;
+      break;
+    case "triste":
+      elements.petGif.src = characterGifs.triste;
+      break;
+    default:
+      elements.petGif.src = characterGifs.contenta;
+  }
+}
 
   // Mostrar notificación
   function showNotification(message, duration = 3000) {
@@ -391,14 +418,14 @@ function initGame() {
 
         // Disminuir felicidad si el hambre es baja
         if (tamagotchi.stats.hunger < 50) {
-          tamagotchi.stats.happiness = Math.max(0, tamagotchi.stats.happiness - 5);
+          tamagotchi.stats.happiness = Math.max(0, tamagotchi.stats.happiness - 10);
         }
 
         // Disminuir energía
-        tamagotchi.stats.energy = Math.max(0, tamagotchi.stats.energy - 5);
+        tamagotchi.stats.energy = Math.max(0, tamagotchi.stats.energy - 8);
 
         // Disminuir higiene
-        tamagotchi.stats.hygiene = Math.max(0, tamagotchi.stats.hygiene - 5);
+        tamagotchi.stats.hygiene = Math.max(0, tamagotchi.stats.hygiene - 7);
 
         // Notificaciones de advertencia
         if (tamagotchi.stats.hunger < 30) {
@@ -417,7 +444,7 @@ function initGame() {
         // Actualizar visualización
         updateDisplay();
       }
-    }, 3000); // Cada 3 segundos
+    }, 3000); // Cada 30 segundos
   }
 
   // Comprobar si la mascota ha muerto - MODIFICADO
@@ -450,7 +477,7 @@ function initGame() {
       // Después de 3 segundos, regresar al menú de selección
       setTimeout(() => {
         returnToStartMenu();
-      }, 3000);
+      }, 30000);
     }
   }
 
@@ -543,6 +570,7 @@ function initGame() {
           showNotification("Estoy demasiado cansada para jugar... 💤");
           return;
         }
+        openGameModal();
         tamagotchi.stats.energy = Math.max(0, tamagotchi.stats.energy - 15);
         tamagotchi.stats.happiness = Math.min(100, tamagotchi.stats.happiness + 20);
         elements.petGif.src = characterGifs.jugando;
@@ -809,6 +837,96 @@ function wakeUp() {
       particlesContainer.appendChild(particle);
     }
   }
+
+  // —————————————————————————————
+// 1) Selector del modal
+const gameModal      = document.getElementById('game-modal');
+const memoryGrid     = document.getElementById('memory-game');
+const pairsFoundEl   = document.getElementById('pairs-found');
+const movesCountEl   = document.getElementById('moves-count');
+
+let firstCard   = null;
+let lockBoard   = false;
+let pairsFound  = 0;
+let moves       = 0;
+
+// 2) Abrir y cerrar modal
+function openGameModal() {
+  gameModal.style.display = 'flex';
+  initMemoryGame();
+}
+
+function closeGameModal() {
+  gameModal.style.display = 'none';
+}
+
+// 3) Inicializar juego
+function initMemoryGame() {
+  // Reiniciar estado
+  firstCard  = null;
+  lockBoard  = false;
+  pairsFound = 0;
+  moves      = 0;
+  pairsFoundEl.textContent = pairsFound;
+  movesCountEl.textContent = moves;
+  memoryGrid.innerHTML = '';
+
+  // Generar pares (0–7) y barajarlos
+  const cardValues = [...Array(8).keys(), ...Array(8).keys()]
+    .sort(() => 0.5 - Math.random());
+
+  cardValues.forEach(value => {
+    const btn = document.createElement('button');
+    btn.className = 'memory-card';
+    btn.dataset.value = value;
+    btn.addEventListener('click', handleCardClick);
+    memoryGrid.appendChild(btn);
+  });
+}
+
+// 4) Lógica al clicar carta
+function handleCardClick() {
+  if (lockBoard || this === firstCard) return;
+
+  this.textContent = this.dataset.value;
+  this.classList.add('flipped');
+
+  if (!firstCard) {
+    firstCard = this;
+  } else {
+    lockBoard = true;
+    moves++;
+    movesCountEl.textContent = moves;
+
+    if (this.dataset.value === firstCard.dataset.value) {
+      // Acertó par
+      pairsFound++;
+      pairsFoundEl.textContent = pairsFound;
+      this.classList.add('matched');
+      firstCard.classList.add('matched');
+      resetTurn();
+      if (pairsFound === 8) setTimeout(closeGameModal, 800);
+    } else {
+      // Falló par
+      setTimeout(() => {
+        this.classList.remove('flipped');
+        this.textContent = '';
+        firstCard.classList.remove('flipped');
+        firstCard.textContent = '';
+        resetTurn();
+      }, 1000);
+    }
+  }
+}
+
+function resetTurn() {
+  [firstCard, lockBoard] = [null, false];
+}
+
+// 5) Cerrar modal al botón “Cerrar”
+document.querySelector('.modal.game-modal .close-btn')
+        .addEventListener('click', closeGameModal);
+
 
   // Inicializar el juego
   init();
