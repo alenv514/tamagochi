@@ -1,3 +1,4 @@
+let ageInterval, statsInterval;
 // Tamagotchi Virtual Premium - Código JavaScript Completo
 document.addEventListener('DOMContentLoaded', function() {
   // Variables del Tamagotchi
@@ -396,63 +397,141 @@ function updatePetGif() {
     showNotification(message, duration);
   }
 
-  // Bucle principal del juego
-  function startGameLoop() {
-    // Actualizar edad cada minuto
-    setInterval(() => {
-      if (!tamagotchi.isDead && !tamagotchi.isSleeping) {
-        tamagotchi.age.minutes++;
-        
-        if (tamagotchi.age.minutes >= 60) {
-          tamagotchi.age.hours++;
-          tamagotchi.age.minutes = 0;
-        }
-      }
-    }, 60000); // 1 minuto real = 1 minuto en el juego
-    
-    // Degradación de estadísticas cada 3 segundos
-    setInterval(() => {
-      if (!tamagotchi.isDead && !tamagotchi.isSleeping) {
-        // Disminuir hambre
-        tamagotchi.stats.hunger = Math.max(0, tamagotchi.stats.hunger - 5);
+   // Inicializar el Tamagotchi
+function init() {
+  // No actualizar display automáticamente, esperar a que se seleccione el personaje
+  createParticles();
+  setupMemoryGame();
+  initializeStartMenu(); // Inicializar menú de selección
+}
 
-        // Disminuir felicidad si el hambre es baja
-        if (tamagotchi.stats.hunger < 50) {
-          tamagotchi.stats.happiness = Math.max(0, tamagotchi.stats.happiness - 10);
-        }
-
-        // Disminuir energía
-        tamagotchi.stats.energy = Math.max(0, tamagotchi.stats.energy - 8);
-
-        // Disminuir higiene
-        tamagotchi.stats.hygiene = Math.max(0, tamagotchi.stats.hygiene - 7);
-
-        // Notificaciones de advertencia
-        if (tamagotchi.stats.hunger < 30) {
-          showNotification("¡Tengo hambre! 🍎");
-        }
-        if (tamagotchi.stats.energy < 30) {
-          showNotification("¡Estoy cansada! 💤");
-        }
-        if (tamagotchi.stats.hygiene < 30) {
-          showNotification("¡Necesito un baño! 🧼");
-        }
-
-        // Comprobar si ha muerto
-        checkDeath();
-
-        // Actualizar visualización
-        updateDisplay();
-      }
-    }, 3000); // Cada 30 segundos
+// Nueva función para inicializar el menú de selección
+function initializeStartMenu() {
+  const characterOptions = document.querySelectorAll('.character-option');
+  const nameInput = document.getElementById('pet-name-input');
+  
+  // Seleccionar gato por defecto
+  if (characterOptions.length > 0) {
+    characterOptions[0].classList.add('selected');
   }
+  
+  // Manejar selección de personaje
+  characterOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      characterOptions.forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+    });
+  });
+  
+  // Permitir Enter para iniciar
+  if (nameInput) {
+    nameInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        startGame();
+      }
+    });
+  }
+}
+
+// Nueva función para iniciar el juego
+function startGame() {
+  const nameInput = document.getElementById('pet-name-input');
+  const selectedCharacter = document.querySelector('.character-option.selected');
+  
+  if (!selectedCharacter) {
+    alert('Por favor selecciona un personaje');
+    return;
+  }
+  
+  // Obtener nombre (usar placeholder si está vacío)
+  const petName = nameInput.value.trim() || 'Mascottita';
+  const characterType = selectedCharacter.dataset.character;
+  
+  // Configurar tamagotchi
+  tamagotchi.name = petName;
+  tamagotchi.character = characterType;
+  
+  // Ocultar modal de inicio
+  document.getElementById('start-modal').style.display = 'none';
+  
+  // Actualizar display inicial
+  updateDisplay();
+  
+  // Mostrar mensaje de bienvenida
+  showNotification(`¡Hola! Soy ${petName} 😊`, 3000);
+
+  // Arrancar bucles de edad y estadísticas
+  startGameLoop();
+}
+
+// 1) Declara las variables en el scope exterior
+
+
+// 2) Reemplaza tu startGameLoop así:
+function startGameLoop() {
+  // Actualizar edad cada minuto
+  ageInterval = setInterval(() => {
+    if (!tamagotchi.isDead && !tamagotchi.isSleeping) {
+      tamagotchi.age.minutes++;
+      if (tamagotchi.age.minutes >= 60) {
+        tamagotchi.age.hours++;
+        tamagotchi.age.minutes = 0;
+      }
+    }
+  }, 60000); // 1 minuto real = 1 minuto en el juego
+
+  // Degradación de estadísticas cada 3 segundos
+  statsInterval = setInterval(() => {
+    if (!tamagotchi.isDead && !tamagotchi.isSleeping) {
+      // Disminuir hambre
+      tamagotchi.stats.hunger = Math.max(0, tamagotchi.stats.hunger - 5);
+
+      // Disminuir felicidad si el hambre es baja
+      if (tamagotchi.stats.hunger < 50) {
+        tamagotchi.stats.happiness = Math.max(0, tamagotchi.stats.happiness - 10);
+      }
+
+      // Disminuir energía
+      tamagotchi.stats.energy = Math.max(0, tamagotchi.stats.energy - 8);
+
+      // Disminuir higiene
+      tamagotchi.stats.hygiene = Math.max(0, tamagotchi.stats.hygiene - 7);
+
+      // Notificaciones de advertencia
+      if (tamagotchi.stats.hunger < 30) {
+        showNotification("¡Tengo hambre! 🍎");
+      }
+      if (tamagotchi.stats.energy < 30) {
+        showNotification("¡Estoy cansada! 💤");
+      }
+      if (tamagotchi.stats.hygiene < 30) {
+        showNotification("¡Necesito un baño! 🧼");
+      }
+
+      // Comprobar si ha muerto y refrescar pantalla
+      checkDeath();
+      updateDisplay();
+    }
+  }, 3000); // cada 3 segundos
+}
+
+
 
   // Comprobar si la mascota ha muerto - MODIFICADO
   function checkDeath() {
     if (tamagotchi.stats.happiness <= 0 || tamagotchi.stats.hunger <= 0 || 
         tamagotchi.stats.energy <= 0 || tamagotchi.stats.hygiene <= 0) {
       tamagotchi.isDead = true;
-      
+
+        clearInterval(ageInterval);
+        clearInterval(statsInterval);
+
+      // ——— Reproducir sonido de muerte ———
+      const deathSound = document.getElementById('death-sound');
+      if (deathSound) {
+        deathSound.currentTime = 0;
+        deathSound.play();
+      }
       // Determinar causa de muerte
       let deathReason = "No la cuidaste bien...";
       if (tamagotchi.stats.hunger <= 0) deathReason = "Murió de hambre... 💀";
