@@ -549,6 +549,10 @@ function startGameLoop() {
     // Ocultar overlay de muerte
     elements.deathOverlay.style.display = 'none';
     
+    // Detener los bucles de juego
+    clearInterval(ageInterval);
+    clearInterval(statsInterval);
+    
     // Resetear el tamagotchi a valores iniciales
     tamagotchi.name = "Mascottita";
     tamagotchi.character = "gato";
@@ -588,6 +592,7 @@ function startGameLoop() {
     
     // Mostrar notificación
     showNotification("💔 Tu mascota ha fallecido. ¡Comienza de nuevo!", 4000);
+    updateDisplay();
   }
 
   // Modificar la función restart para que también use el menú - OPCIONAL
